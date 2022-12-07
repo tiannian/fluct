@@ -7,8 +7,8 @@ pub enum Error {
     #[error(transparent)]
     RlpDecodeError(#[from] rlp::DecoderError),
 
-    #[error(transparent)]
-    EthereumEnvelopedError(#[from] ethereum::EnvelopedDecoderError<rlp::DecoderError>),
+    #[error("{0:?}")]
+    EthereumEnvelopedError(ethereum::EnvelopedDecoderError<rlp::DecoderError>),
 
     #[error("{0}")]
     StoreError(String),

@@ -1,1 +1,3 @@
-pub struct Runtime {}
+pub struct Runtime<KV> {
+
+}

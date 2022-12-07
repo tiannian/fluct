@@ -11,3 +11,6 @@ pub use receipt::*;
 
 mod state;
 pub use state::*;
+
+mod store;
+pub use store::*;

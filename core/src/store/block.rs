@@ -1,8 +1,9 @@
 use ethereum::Header;
-use primitive_types::H256;
+use ethereum_types::H256;
 
 use crate::{Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
 
+#[derive(Clone)]
 pub struct BlockStore<KV> {
     /// Store height -> hash
     ///
@@ -76,6 +77,18 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
         }
     }
 
+    pub fn block_hash_by_height(&self, height: u64) -> Result<Option<H256>> {
+        if let Some(data) = self
+            .blockheight
+            .get(&height.to_le_bytes())
+            .map_err(Error::store)?
+        {
+            Ok(Some(H256::from_slice(&data)))
+        } else {
+            Ok(None)
+        }
+    }
+
     pub fn get_txs(&self, hash: H256) -> Result<Vec<H256>> {
         if let Some(data) = self.txs.get(hash.as_bytes()).map_err(Error::store)? {
             let txs = rlp::decode_list(&data);
@@ -95,7 +108,7 @@ impl<KV: KeyValueStore> BlockStore<KV> {
         let ops = &[(hash.as_bytes(), Some(bytes.into()))];
         self.blockheader.ops(ops).map_err(Error::store)?;
 
-        let number = header.number.as_u64().to_be_bytes();
+        let number = header.number.as_u64().to_le_bytes();
         let ops = &[
             (&number, Some(hash.to_fixed_bytes().into())),
             (&Self::LATEST_HEIGHT, Some(number.into())),

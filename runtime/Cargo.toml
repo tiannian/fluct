@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ethereum-types = "0.14.1"
 evm = "0.37.0"
 
 fluct-core = { version = "0.1", path = "../core" }
