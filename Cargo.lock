@@ -237,12 +237,17 @@ dependencies = [
 [[package]]
 name = "fluct-core"
 version = "0.1.0"
+dependencies = [
+ "ethereum",
+ "primitive-types",
+ "rlp",
+ "thiserror",
+]
 
 [[package]]
 name = "fluct-executor"
 version = "0.1.0"
 dependencies = [
- "ethereum",
  "thiserror",
 ]
 

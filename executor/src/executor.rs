@@ -1,8 +1,6 @@
 use crate::{Result, TransactionBytes};
 
-pub struct Executor {
-
-}
+pub struct Executor {}
 
 impl Executor {
     pub fn new() -> Self {
@@ -13,4 +11,3 @@ impl Executor {
         Ok(())
     }
 }
-
