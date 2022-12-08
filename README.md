@@ -15,6 +15,7 @@ A hybrid modern blockchain.
 - Extension of ethereum
   - Tracing API
   - Pending API
+  - Extension precompile contract
 - Optimization
   - Parallel EVM execution based on address predictions.
 - Develop on EVM
