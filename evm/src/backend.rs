@@ -2,26 +2,20 @@ use evm::backend::{Backend, Basic};
 use fluct_core::{BlockStore, KeyValueStoreReadonly, StateStore};
 use primitive_types::{H160, H256, U256};
 
-pub struct CoreVicinity {
-    pub gas_price: U256,
-    pub origin: H160,
-    pub height: u64,
-    pub coinbase: H160,
-    pub timestamp: U256,
-    pub difficulty: U256,
-    pub gas_limit: U256,
-    pub base_fee_per_gas: U256,
-    pub chain_id: U256,
-}
+use crate::CoreVicinity;
 
-pub struct CoreBackend<KV> {
-    block: BlockStore<KV>,
-    state: StateStore<KV>,
+pub struct CoreBackend<'a, KV> {
+    block: &'a BlockStore<KV>,
+    state: &'a StateStore<KV>,
     vicinity: CoreVicinity,
 }
 
-impl<KV> CoreBackend<KV> {
-    pub fn new(block: BlockStore<KV>, state: StateStore<KV>, vicinity: CoreVicinity) -> Self {
+impl<'a, KV> CoreBackend<'a, KV> {
+    pub fn new(
+        block: &'a BlockStore<KV>,
+        state: &'a StateStore<KV>,
+        vicinity: CoreVicinity,
+    ) -> Self {
         CoreBackend {
             block,
             state,
@@ -30,7 +24,10 @@ impl<KV> CoreBackend<KV> {
     }
 }
 
-impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
+impl<'a, KV> Backend for CoreBackend<'a, KV>
+where
+    KV: KeyValueStoreReadonly,
+{
     fn gas_price(&self) -> U256 {
         self.vicinity.gas_price
     }
@@ -40,7 +37,7 @@ impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
     }
 
     fn block_hash(&self, number: U256) -> H256 {
-        if number > U256::from(self.vicinity.height) {
+        if number > U256::from(self.vicinity.block_height) {
             H256::default()
         } else {
             self.block
@@ -51,27 +48,27 @@ impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
     }
 
     fn block_number(&self) -> U256 {
-        self.vicinity.height.into()
+        self.vicinity.block_height.into()
     }
 
     fn block_coinbase(&self) -> H160 {
-        self.vicinity.coinbase
+        self.vicinity.block_coinbase
     }
 
     fn block_timestamp(&self) -> U256 {
-        self.vicinity.timestamp
+        self.vicinity.block_timestamp
     }
 
     fn block_difficulty(&self) -> U256 {
-        self.vicinity.difficulty
+        self.vicinity.block_difficulty
     }
 
     fn block_gas_limit(&self) -> U256 {
-        self.vicinity.gas_limit
+        self.vicinity.block_gas_limit
     }
 
     fn block_base_fee_per_gas(&self) -> U256 {
-        self.vicinity.base_fee_per_gas
+        self.vicinity.block_base_fee_per_gas
     }
 
     fn chain_id(&self) -> U256 {
@@ -81,7 +78,7 @@ impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
     fn basic(&self, address: H160) -> Basic {
         let (balance, nonce) = self
             .state
-            .get_basic(address, self.vicinity.height)
+            .get_basic(address, self.vicinity.block_height)
             .expect("Failed to read basic")
             .unwrap_or_default();
 
@@ -90,14 +87,14 @@ impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
 
     fn code(&self, address: H160) -> Vec<u8> {
         self.state
-            .get_code(address, self.vicinity.height)
+            .get_code(address, self.vicinity.block_height)
             .expect("Failed to get code")
             .unwrap_or_default()
     }
 
     fn exists(&self, address: H160) -> bool {
         self.state
-            .get_basic(address, self.vicinity.height)
+            .get_basic(address, self.vicinity.block_height)
             .expect("Failed to get basic")
             .is_some()
     }
@@ -108,7 +105,7 @@ impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
 
     fn original_storage(&self, address: H160, index: H256) -> Option<H256> {
         self.state
-            .get_storage(address, index, self.vicinity.height)
+            .get_storage(address, index, self.vicinity.block_height)
             .expect("Failed to get storage")
     }
 }

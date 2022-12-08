@@ -3,13 +3,13 @@ members = [
     "core",
     "executor",
 
-    "runtime",
-    "runtime/precompiles/blake2",
-    "runtime/precompiles/bn128",
-    "runtime/precompiles/curve25519",
-    "runtime/precompiles/ed25519",
-    "runtime/precompiles/modexp",
-    "runtime/precompiles/sha3fips",
-    "runtime/precompiles/simple",
+    "evm",
+    "evm/precompiles/blake2",
+    "evm/precompiles/bn128",
+    "evm/precompiles/curve25519",
+    "evm/precompiles/ed25519",
+    "evm/precompiles/modexp",
+    "evm/precompiles/sha3fips",
+    "evm/precompiles/simple",
 ]
 

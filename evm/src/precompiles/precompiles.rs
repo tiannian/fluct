@@ -1,11 +1,11 @@
 use evm::executor::stack::{PrecompileFailure, PrecompileHandle, PrecompileOutput, PrecompileSet};
-use fluct_precompile_blake2::Blake2F;
-use fluct_precompile_bn128::{Bn128Add, Bn128Mul, Bn128Pairing};
-use fluct_precompile_curve25519::{Curve25519Add, Curve25519ScalarMul};
-use fluct_precompile_ed25519::Ed25519Verify;
-use fluct_precompile_modexp::Modexp;
-use fluct_precompile_sha3fips::{Sha3FIPS256, Sha3FIPS512};
-use fluct_precompile_simple::{ECRecover, Identity, Ripemd160, Sha256, ECRecoverPublicKey};
+use fluct_evm_precompile_blake2::Blake2F;
+use fluct_evm_precompile_bn128::{Bn128Add, Bn128Mul, Bn128Pairing};
+use fluct_evm_precompile_curve25519::{Curve25519Add, Curve25519ScalarMul};
+use fluct_evm_precompile_ed25519::Ed25519Verify;
+use fluct_evm_precompile_modexp::Modexp;
+use fluct_evm_precompile_sha3fips::{Sha3FIPS256, Sha3FIPS512};
+use fluct_evm_precompile_simple::{ECRecover, ECRecoverPublicKey, Identity, Ripemd160, Sha256};
 use primitive_types::H160;
 
 use crate::call_linear_cost;

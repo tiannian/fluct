@@ -1,5 +1,5 @@
 [package]
-name = "fluct-precompile-simple"
+name = "fluct-evm-precompile-simple"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"

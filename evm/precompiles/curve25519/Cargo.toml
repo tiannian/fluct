@@ -1,5 +1,5 @@
 [package]
-name = "fluct-precompile-curve25519"
+name = "fluct-evm-precompile-curve25519"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>", "Drew Stone <drew@webb.tools>"]
 edition = "2021"

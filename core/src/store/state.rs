@@ -13,7 +13,7 @@ pub struct StateStore<KV> {
 }
 
 pub fn open_state_store_readonly<Db: KeyValueDb>(
-    db: Db,
+    db: &Db,
 ) -> Result<StateStore<Db::KeyValueStoreReadonly>> {
     let account = db.open_readonly("state_account").map_err(Error::store)?;
     let storage = db.open_readonly("state_storage").map_err(Error::store)?;
@@ -26,7 +26,7 @@ pub fn open_state_store_readonly<Db: KeyValueDb>(
     })
 }
 
-pub fn open_state_store<Db: KeyValueDb>(db: Db) -> Result<StateStore<Db::KeyValueStore>> {
+pub fn open_state_store<Db: KeyValueDb>(db: &Db) -> Result<StateStore<Db::KeyValueStore>> {
     let account = db.open("state_account").map_err(Error::store)?;
     let storage = db.open("state_storage").map_err(Error::store)?;
     let code = db.open("state_code").map_err(Error::store)?;

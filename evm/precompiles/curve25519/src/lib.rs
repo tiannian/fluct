@@ -20,7 +20,10 @@ use curve25519_dalek::{
     scalar::Scalar,
     traits::Identity,
 };
-use evm::{executor::stack::{PrecompileFailure, PrecompileOutput}, ExitError, ExitSucceed};
+use evm::{
+    executor::stack::{PrecompileFailure, PrecompileOutput},
+    ExitError, ExitSucceed,
+};
 
 // Adds at most 10 curve25519 points and returns the CompressedRistretto bytes representation
 pub struct Curve25519Add;
@@ -63,7 +66,7 @@ impl Curve25519Add {
 
         Ok(PrecompileOutput {
             exit_status: ExitSucceed::Returned,
-            output: sum.compress().to_bytes().to_vec()
+            output: sum.compress().to_bytes().to_vec(),
         })
     }
 }
@@ -97,7 +100,7 @@ impl Curve25519ScalarMul {
             .unwrap_or_else(RistrettoPoint::identity);
 
         let scalar_mul = scalar * point;
-        Ok(PrecompileOutput{
+        Ok(PrecompileOutput {
             exit_status: ExitSucceed::Returned,
             output: scalar_mul.compress().to_bytes().to_vec(),
         })

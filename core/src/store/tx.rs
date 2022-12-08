@@ -3,7 +3,6 @@ use primitive_types::H256;
 
 use crate::{Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
 
-#[derive(Clone)]
 pub struct TxStore<KV> {
     /// txhash -> tx
     pub(crate) tx: KV,

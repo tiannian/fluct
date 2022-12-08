@@ -1,12 +1,14 @@
 [package]
-name = "fluct-precompile-blake2"
+name = "fluct-evm-precompile-modexp"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 license = "Apache-2.0"
-description = "BLAKE2 precompiles for EVM pallet."
+description = "MODEXP precompiles for EVM pallet."
 repository = "https://github.com/paritytech/frontier/"
 
 [dependencies]
 evm = "0.37.0"
+
+num = { version = "0.4", default-features = false, features = ["alloc"] }
 

@@ -6,3 +6,6 @@ pub use backend::*;
 
 mod precompiles;
 pub use precompiles::*;
+
+mod vicinity;
+pub use vicinity::*;

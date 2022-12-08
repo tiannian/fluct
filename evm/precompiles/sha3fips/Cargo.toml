@@ -1,5 +1,5 @@
 [package]
-name = "fluct-precompile-sha3fips"
+name = "fluct-evm-precompile-sha3fips"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>", "Drew Stone <drew@commonwealth.im>"]
 edition = "2021"
