@@ -20,7 +20,7 @@ use curve25519_dalek::{
     scalar::Scalar,
     traits::Identity,
 };
-use evm::{executor::stack::PrecompileFailure, ExitError, ExitSucceed};
+use evm::{executor::stack::{PrecompileFailure, PrecompileOutput}, ExitError, ExitSucceed};
 
 // Adds at most 10 curve25519 points and returns the CompressedRistretto bytes representation
 pub struct Curve25519Add;
@@ -29,7 +29,7 @@ impl Curve25519Add {
     pub const BASE: u64 = 60;
     pub const WORD: u64 = 12;
 
-    pub fn execute(input: &[u8], _: u64) -> Result<(ExitSucceed, Vec<u8>), PrecompileFailure> {
+    pub fn execute(input: &[u8], _: u64) -> Result<PrecompileOutput, PrecompileFailure> {
         if input.len() % 32 != 0 {
             return Err(PrecompileFailure::Error {
                 exit_status: ExitError::Other("input must contain multiple of 32 bytes".into()),
@@ -61,7 +61,10 @@ impl Curve25519Add {
                 acc + pt
             });
 
-        Ok((ExitSucceed::Returned, sum.compress().to_bytes().to_vec()))
+        Ok(PrecompileOutput {
+            exit_status: ExitSucceed::Returned,
+            output: sum.compress().to_bytes().to_vec()
+        })
     }
 }
 
@@ -72,7 +75,7 @@ impl Curve25519ScalarMul {
     pub const BASE: u64 = 60;
     pub const WORD: u64 = 12;
 
-    pub fn execute(input: &[u8], _: u64) -> Result<(ExitSucceed, Vec<u8>), PrecompileFailure> {
+    pub fn execute(input: &[u8], _: u64) -> Result<PrecompileOutput, PrecompileFailure> {
         if input.len() != 64 {
             return Err(PrecompileFailure::Error {
                 exit_status: ExitError::Other(
@@ -94,9 +97,9 @@ impl Curve25519ScalarMul {
             .unwrap_or_else(RistrettoPoint::identity);
 
         let scalar_mul = scalar * point;
-        Ok((
-            ExitSucceed::Returned,
-            scalar_mul.compress().to_bytes().to_vec(),
-        ))
+        Ok(PrecompileOutput{
+            exit_status: ExitSucceed::Returned,
+            output: scalar_mul.compress().to_bytes().to_vec(),
+        })
     }
 }

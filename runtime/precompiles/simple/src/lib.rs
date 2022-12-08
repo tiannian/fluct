@@ -123,7 +123,7 @@ impl ECRecoverPublicKey {
     pub const BASE: u64 = 3000;
     pub const WORD: u64 = 0;
 
-    pub fn execute(i: &[u8], _: u64) -> Result<(ExitSucceed, Vec<u8>), PrecompileFailure> {
+    pub fn execute(i: &[u8], _: u64) -> Result<PrecompileOutput, PrecompileFailure> {
         let mut input = [0u8; 128];
         input[..min(i.len(), 128)].copy_from_slice(&i[..min(i.len(), 128)]);
 
@@ -139,6 +139,9 @@ impl ECRecoverPublicKey {
             exit_status: ExitError::Other("Public key recover failed".into()),
         })?;
 
-        Ok((ExitSucceed::Returned, pubkey.to_vec()))
+        Ok(PrecompileOutput {
+            exit_status: ExitSucceed::Returned,
+            output: pubkey.to_vec(),
+        })
     }
 }

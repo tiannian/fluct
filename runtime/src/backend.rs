@@ -1,6 +1,6 @@
-use ethereum_types::{H160, H256, U256};
 use evm::backend::{Backend, Basic};
 use fluct_core::{BlockStore, KeyValueStoreReadonly, StateStore};
+use primitive_types::{H160, H256, U256};
 
 pub struct CoreVicinity {
     pub gas_price: U256,
