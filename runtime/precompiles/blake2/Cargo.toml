@@ -1,0 +1,12 @@
+[package]
+name = "fluct-precompile-blake2"
+version = "2.0.0-dev"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+license = "Apache-2.0"
+description = "BLAKE2 precompiles for EVM pallet."
+repository = "https://github.com/paritytech/frontier/"
+
+[dependencies]
+evm = "0.37.0"
+

@@ -20,6 +20,16 @@ pub struct CoreBackend<KV> {
     vicinity: CoreVicinity,
 }
 
+impl<KV> CoreBackend<KV> {
+    pub fn new(block: BlockStore<KV>, state: StateStore<KV>, vicinity: CoreVicinity) -> Self {
+        CoreBackend {
+            block,
+            state,
+            vicinity,
+        }
+    }
+}
+
 impl<KV: KeyValueStoreReadonly> Backend for CoreBackend<KV> {
     fn gas_price(&self) -> U256 {
         self.vicinity.gas_price

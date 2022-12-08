@@ -1,0 +1,16 @@
+[package]
+name = "fluct-precompile-bn128"
+version = "2.0.0-dev"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+license = "Apache-2.0"
+description = "BN128 precompiles for EVM pallet."
+repository = "https://github.com/paritytech/frontier/"
+
+[dependencies]
+primitive-types = "0.12.1"
+
+evm = "0.37.0"
+
+bn = { package = "substrate-bn", version = "0.6", default-features = false }
+

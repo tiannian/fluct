@@ -1,0 +1,14 @@
+[package]
+name = "fluct-precompile-sha3fips"
+version = "2.0.0-dev"
+authors = ["Parity Technologies <admin@parity.io>", "Drew Stone <drew@commonwealth.im>"]
+edition = "2021"
+license = "Apache-2.0"
+description = "SHA3 FIPS202 precompile for EVM pallet."
+repository = "https://github.com/paritytech/frontier/"
+
+[dependencies]
+digest = "0.10.6"
+evm = "0.37.0"
+sha3 = "0.10.6"
+

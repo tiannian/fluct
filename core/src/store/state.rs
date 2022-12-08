@@ -1,4 +1,4 @@
-use ethereum_types::{H160, H256, U256};
+use primitive_types::{H160, H256, U256};
 
 use crate::{Error, KeyValueDb, KeyValueStoreReadonly, Result, VersionedKeyValueReadOnly};
 

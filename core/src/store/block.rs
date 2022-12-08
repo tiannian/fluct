@@ -1,5 +1,5 @@
 use ethereum::Header;
-use ethereum_types::H256;
+use primitive_types::H256;
 
 use crate::{Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
 
