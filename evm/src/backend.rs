@@ -8,6 +8,7 @@ pub struct CoreBackend<'a, KV> {
     block: &'a BlockStore<KV>,
     state: &'a StateStore<KV>,
     vicinity: CoreVicinity,
+    origin: H160,
 }
 
 impl<'a, KV> CoreBackend<'a, KV> {
@@ -15,11 +16,13 @@ impl<'a, KV> CoreBackend<'a, KV> {
         block: &'a BlockStore<KV>,
         state: &'a StateStore<KV>,
         vicinity: CoreVicinity,
+        origin: H160,
     ) -> Self {
         CoreBackend {
             block,
             state,
             vicinity,
+            origin,
         }
     }
 }
@@ -33,7 +36,7 @@ where
     }
 
     fn origin(&self) -> H160 {
-        self.vicinity.origin
+        self.origin
     }
 
     fn block_hash(&self, number: U256) -> H256 {

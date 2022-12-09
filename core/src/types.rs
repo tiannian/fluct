@@ -1,3 +1,2 @@
+/// Bytes for key-value store
 pub type StoreBytes = Vec<u8>;
-
-pub type TxBytes = Vec<u8>;

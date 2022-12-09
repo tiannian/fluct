@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use thiserror::Error;
 
+/// Error
 #[derive(Debug, Error)]
 pub enum Error {
     #[error(transparent)]
@@ -20,4 +21,5 @@ impl Error {
     }
 }
 
+/// Result with Error
 pub type Result<T> = std::result::Result<T, Error>;

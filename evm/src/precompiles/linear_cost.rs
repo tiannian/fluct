@@ -3,7 +3,7 @@ use evm::{
     ExitError,
 };
 
-pub fn ensure_linear_cost(
+pub(crate) fn ensure_linear_cost(
     target_gas: Option<u64>,
     len: u64,
     base: u64,
@@ -30,7 +30,7 @@ pub fn ensure_linear_cost(
     Ok(cost)
 }
 
-pub fn call_linear_cost(
+pub(crate) fn call_linear_cost(
     handle: &mut impl PrecompileHandle,
     execute: impl Fn(&[u8], u64) -> Result<PrecompileOutput, PrecompileFailure>,
     base: u64,

@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "core",
-    "executor",
 
     "evm",
     "evm/precompiles/blake2",

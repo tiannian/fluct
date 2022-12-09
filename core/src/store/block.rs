@@ -3,6 +3,7 @@ use primitive_types::H256;
 
 use crate::{Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
 
+/// Block store
 pub struct BlockStore<KV> {
     /// Store height -> hash
     ///
@@ -17,6 +18,7 @@ pub struct BlockStore<KV> {
     pub(crate) txs: KV,
 }
 
+/// Open readonly block store
 pub fn open_block_store_readonly<Db: KeyValueDb>(
     db: &Db,
 ) -> Result<BlockStore<Db::KeyValueStoreReadonly>> {
@@ -31,6 +33,7 @@ pub fn open_block_store_readonly<Db: KeyValueDb>(
     })
 }
 
+/// Open writeable block store
 pub fn open_block_store<Db: KeyValueDb>(db: &Db) -> Result<BlockStore<Db::KeyValueStore>> {
     let blockheader = db.open("block_header").map_err(Error::store)?;
     let blockheight = db.open("block_height").map_err(Error::store)?;
@@ -44,10 +47,11 @@ pub fn open_block_store<Db: KeyValueDb>(db: &Db) -> Result<BlockStore<Db::KeyVal
 }
 
 impl<KV> BlockStore<KV> {
-    pub const LATEST_HEIGHT: [u8; 8] = [0xff; 8];
+    const LATEST_HEIGHT: [u8; 8] = [0xff; 8];
 }
 
 impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
+    /// Get laste hash
     pub fn latest_hash(&self) -> Result<u64> {
         let height = if let Some(data) = self
             .blockheight
@@ -64,6 +68,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
         Ok(height)
     }
 
+    /// Get block by hash
     pub fn block_by_hash(&self, hash: H256) -> Result<Option<Header>> {
         if let Some(data) = self
             .blockheader
@@ -76,6 +81,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
         }
     }
 
+    /// Get block hash of height
     pub fn block_hash_by_height(&self, height: u64) -> Result<Option<H256>> {
         if let Some(data) = self
             .blockheight
@@ -88,6 +94,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
         }
     }
 
+    /// Get block's transactions
     pub fn get_txs(&self, hash: H256) -> Result<Vec<H256>> {
         if let Some(data) = self.txs.get(hash.as_bytes()).map_err(Error::store)? {
             let txs = rlp::decode_list(&data);
@@ -100,6 +107,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
 }
 
 impl<KV: KeyValueStore> BlockStore<KV> {
+    /// Add block's
     pub fn add_block(&self, header: &Header, txhashes: &[H256]) -> Result<()> {
         let hash = header.hash();
 

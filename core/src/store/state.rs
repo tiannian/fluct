@@ -2,6 +2,9 @@ use primitive_types::{H160, H256, U256};
 
 use crate::{Error, KeyValueDb, KeyValueStoreReadonly, Result, VersionedKeyValueReadOnly};
 
+/// State store
+///
+/// Include account basic (balance, nonce), code, and storage.
 pub struct StateStore<KV> {
     /// address -> (balance, nonce, code)
     pub(crate) account: KV,
@@ -12,6 +15,7 @@ pub struct StateStore<KV> {
     pub(crate) storage: KV,
 }
 
+/// Open a readonly state store
 pub fn open_state_store_readonly<Db: KeyValueDb>(
     db: &Db,
 ) -> Result<StateStore<Db::KeyValueStoreReadonly>> {
@@ -26,6 +30,7 @@ pub fn open_state_store_readonly<Db: KeyValueDb>(
     })
 }
 
+/// Open a writeable state store
 pub fn open_state_store<Db: KeyValueDb>(db: &Db) -> Result<StateStore<Db::KeyValueStore>> {
     let account = db.open("state_account").map_err(Error::store)?;
     let storage = db.open("state_storage").map_err(Error::store)?;
@@ -39,6 +44,7 @@ pub fn open_state_store<Db: KeyValueDb>(db: &Db) -> Result<StateStore<Db::KeyVal
 }
 
 impl<KV: KeyValueStoreReadonly> StateStore<KV> {
+    /// Get basic of account basic. Include balance, nonce.
     pub fn get_basic(&self, address: H160, height: u64) -> Result<Option<(U256, U256)>> {
         let account = &self.account;
 
@@ -55,12 +61,14 @@ impl<KV: KeyValueStoreReadonly> StateStore<KV> {
         }
     }
 
+    /// Get account's code
     pub fn get_code(&self, address: H160, height: u64) -> Result<Option<Vec<u8>>> {
         self.code
             .get_by_version(address.as_bytes(), height)
             .map_err(Error::store)
     }
 
+    /// Get account's storage
     pub fn get_storage(&self, address: H160, index: H256, height: u64) -> Result<Option<H256>> {
         let mut key: Vec<u8> = address.0.into();
         key.extend_from_slice(index.as_bytes());

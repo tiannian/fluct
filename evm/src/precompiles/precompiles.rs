@@ -8,9 +8,15 @@ use fluct_evm_precompile_sha3fips::{Sha3FIPS256, Sha3FIPS512};
 use fluct_evm_precompile_simple::{ECRecover, ECRecoverPublicKey, Identity, Ripemd160, Sha256};
 use primitive_types::H160;
 
-use crate::call_linear_cost;
+use super::linear_cost::call_linear_cost;
 
 pub struct Precompiles {}
+
+impl Default for Precompiles {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Precompiles {
     pub const SECP256K1_RECOVER: H160 = hash(1);

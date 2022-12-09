@@ -1,3 +1,4 @@
+/// Receipt store
 pub struct ReceiptStore<KV> {
     /// receipthash -> receipt
     receipt: KV,
