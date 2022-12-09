@@ -12,6 +12,8 @@ A hybrid modern blockchain.
   - Smart Contract Engine (EVM).
   - Standard Web3 RPC to support developer for ethereum.
   - Standard precompile contract.
+  - Spare nonce
+  - Cancel and boost transaction.
 - Extension of ethereum
   - Tracing API
   - Pending API
