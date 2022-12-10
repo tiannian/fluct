@@ -1,4 +1,4 @@
-mod precompiles;
-pub use precompiles::*;
+mod precompile;
+pub use precompile::*;
 
 mod linear_cost;

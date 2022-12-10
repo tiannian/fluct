@@ -1,5 +1,6 @@
 use primitive_types::{H160, U256};
 
+#[derive(Debug, Default)]
 pub struct CoreVicinity {
     pub gas_price: U256,
     pub block_height: u64,

@@ -15,7 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{cmp::max, ops::BitAnd};
+use std::{
+    cmp::{max, Ordering},
+    ops::BitAnd,
+};
 
 use evm::{
     executor::stack::{PrecompileFailure, PrecompileHandle, PrecompileOutput},
@@ -188,23 +191,23 @@ impl Modexp {
 
         // always true except in the case of zero-length modulus, which leads to
         // output of length and value 1.
-        if bytes.len() == mod_len {
-            Ok(PrecompileOutput {
+        match bytes.len().cmp(&mod_len) {
+            Ordering::Equal => Ok(PrecompileOutput {
                 exit_status: ExitSucceed::Returned,
                 output: bytes.to_vec(),
-            })
-        } else if bytes.len() < mod_len {
-            let mut ret = Vec::with_capacity(mod_len);
-            ret.extend(core::iter::repeat(0).take(mod_len - bytes.len()));
-            ret.extend_from_slice(&bytes[..]);
-            Ok(PrecompileOutput {
-                exit_status: ExitSucceed::Returned,
-                output: ret.to_vec(),
-            })
-        } else {
-            Err(PrecompileFailure::Error {
+            }),
+            Ordering::Less => {
+                let mut ret = Vec::with_capacity(mod_len);
+                ret.extend(core::iter::repeat(0).take(mod_len - bytes.len()));
+                ret.extend_from_slice(&bytes[..]);
+                Ok(PrecompileOutput {
+                    exit_status: ExitSucceed::Returned,
+                    output: ret.to_vec(),
+                })
+            }
+            Ordering::Greater => Err(PrecompileFailure::Error {
                 exit_status: ExitError::Other("failed".into()),
-            })
+            }),
         }
     }
 }

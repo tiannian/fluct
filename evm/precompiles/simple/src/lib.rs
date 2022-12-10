@@ -68,7 +68,7 @@ impl ECRecover {
 
         let result = match secp256k1_ecdsa_recover(sig, msg) {
             Ok(pubkey) => {
-                let mut address = Keccak256::digest(&pubkey);
+                let mut address = Keccak256::digest(pubkey);
                 address[0..12].copy_from_slice(&[0u8; 12]);
                 address.to_vec()
             }

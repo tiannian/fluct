@@ -10,13 +10,8 @@ use primitive_types::H160;
 
 use super::linear_cost::call_linear_cost;
 
+#[derive(Debug, Default)]
 pub struct Precompiles {}
-
-impl Default for Precompiles {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Precompiles {
     pub const SECP256K1_RECOVER: H160 = hash(1);

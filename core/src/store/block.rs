@@ -55,7 +55,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
     pub fn latest_hash(&self) -> Result<u64> {
         let height = if let Some(data) = self
             .blockheight
-            .get(&Self::LATEST_HEIGHT)
+            .get(Self::LATEST_HEIGHT)
             .map_err(Error::store)?
         {
             let mut bytes = [0u8; 8];
@@ -85,7 +85,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
     pub fn block_hash_by_height(&self, height: u64) -> Result<Option<H256>> {
         if let Some(data) = self
             .blockheight
-            .get(&height.to_le_bytes())
+            .get(height.to_le_bytes())
             .map_err(Error::store)?
         {
             Ok(Some(H256::from_slice(&data)))

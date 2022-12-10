@@ -40,5 +40,5 @@ pub(crate) fn call_linear_cost(
     let cost = ensure_linear_cost(target_gas, handle.input().len() as u64, base, word)?;
 
     handle.record_cost(cost)?;
-    Ok(execute(handle.input(), cost)?)
+    execute(handle.input(), cost)
 }

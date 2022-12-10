@@ -21,6 +21,7 @@ fluct-evm-precompile-sha3fips = { version = "0.1", path = "./precompiles/sha3fip
 fluct-evm-precompile-curve25519 = { version = "0.1", path = "./precompiles/curve25519" }
 fluct-evm-precompile-ed25519 = { version = "0.1", path = "./precompiles/ed25519" }
 ethereum = "0.14.0"
+thiserror = "1.0.37"
 
 [features]
 default = []
