@@ -1,11 +1,8 @@
-use evm::{
-    executor::stack::{MemoryStackState, StackExecutor, StackSubstateMetadata},
-    Config, ExitReason,
-};
-use fluct_core::{KeyValueStoreReadonly, Store};
-use primitive_types::{H160, H256, U256};
+use evm::Config;
+use fluct_core::Store;
+use primitive_types::U256;
 
-use crate::{CoreBackend, CoreVicinity, Error, Precompiles, Result, Runtime};
+use crate::{CoreVicinity, Error, Result, Runtime};
 
 pub struct RuntimeBuilder<'a, KV, R> {
     config: Option<Config>,
@@ -70,7 +67,7 @@ impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
     }
 
     fn get_init_vicinity(&mut self) -> &mut CoreVicinity {
-        if let None = &self.vicinity {
+        if self.vicinity.is_none() {
             self.vicinity = Some(Default::default())
         }
 
@@ -92,8 +89,7 @@ impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
             vicinity,
             recoder: self.recoder,
             store,
-            applies: Vec::new(),
-            logs: Vec::new(),
+            state: None,
         })
     }
 }

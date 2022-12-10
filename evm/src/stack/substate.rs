@@ -1,23 +1,19 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    mem,
-};
+use std::{collections::BTreeSet, mem};
 
 use evm::{
-    backend::{Apply, Backend, Basic},
+    backend::{Backend, Basic},
     executor::stack::{Accessed, Log, MemoryStackAccount, StackSubstateMetadata},
     ExitError, Transfer,
 };
 use primitive_types::{H160, H256, U256};
 
+use super::State;
+
 #[derive(Clone, Debug)]
 pub struct CoreStackSubstate<'config> {
     metadata: StackSubstateMetadata<'config>,
     parent: Option<Box<CoreStackSubstate<'config>>>,
-    logs: Vec<Log>,
-    accounts: BTreeMap<H160, MemoryStackAccount>,
-    storages: BTreeMap<(H160, H256), H256>,
-    deletes: BTreeSet<H160>,
+    state: State,
 }
 
 impl<'config> CoreStackSubstate<'config> {
@@ -25,19 +21,16 @@ impl<'config> CoreStackSubstate<'config> {
         Self {
             metadata,
             parent: None,
-            logs: Vec::new(),
-            accounts: BTreeMap::new(),
-            storages: BTreeMap::new(),
-            deletes: BTreeSet::new(),
+            state: State::default(),
         }
     }
 
     pub fn logs(&self) -> &[Log] {
-        &self.logs
+        &self.state.logs
     }
 
     pub fn logs_mut(&mut self) -> &mut Vec<Log> {
-        &mut self.logs
+        &mut self.state.logs
     }
 
     pub fn metadata(&self) -> &StackSubstateMetadata<'config> {
@@ -51,69 +44,15 @@ impl<'config> CoreStackSubstate<'config> {
     /// Deconstruct the executor, return state to be applied. Panic if the
     /// executor is not in the top-level substate.
     #[must_use]
-    pub fn deconstruct<B: Backend>(
-        mut self,
-        backend: &B,
-    ) -> (
-        impl IntoIterator<Item = Apply<impl IntoIterator<Item = (H256, H256)>>>,
-        impl IntoIterator<Item = Log>,
-    ) {
-        assert!(self.parent.is_none());
-
-        let mut applies = Vec::<Apply<BTreeMap<H256, H256>>>::new();
-
-        let mut addresses = BTreeSet::new();
-
-        for address in self.accounts.keys() {
-            addresses.insert(*address);
-        }
-
-        for (address, _) in self.storages.keys() {
-            addresses.insert(*address);
-        }
-
-        for address in addresses {
-            if self.deletes.contains(&address) {
-                continue;
-            }
-
-            let mut storage = BTreeMap::new();
-            for ((oa, ok), ov) in &self.storages {
-                if *oa == address {
-                    storage.insert(*ok, *ov);
-                }
-            }
-
-            let apply = {
-                let account = self.account_mut(address, backend);
-
-                Apply::Modify {
-                    address,
-                    basic: account.basic.clone(),
-                    code: account.code.clone(),
-                    storage,
-                    reset_storage: account.reset,
-                }
-            };
-
-            applies.push(apply);
-        }
-
-        for address in self.deletes {
-            applies.push(Apply::Delete { address });
-        }
-
-        (applies, self.logs)
+    pub fn deconstruct(self) -> State {
+        self.state
     }
 
     pub fn enter(&mut self, gas_limit: u64, is_static: bool) {
         let mut entering = Self {
             metadata: self.metadata.spit_child(gas_limit, is_static),
             parent: None,
-            logs: Vec::new(),
-            accounts: BTreeMap::new(),
-            storages: BTreeMap::new(),
-            deletes: BTreeSet::new(),
+            state: State::default(),
         };
         mem::swap(&mut entering, self);
 
@@ -125,27 +64,27 @@ impl<'config> CoreStackSubstate<'config> {
         mem::swap(&mut exited, self);
 
         self.metadata.swallow_commit(exited.metadata)?;
-        self.logs.append(&mut exited.logs);
+        self.state.logs.append(&mut exited.state.logs);
 
         let mut resets = BTreeSet::new();
-        for (address, account) in &exited.accounts {
+        for (address, account) in &exited.state.accounts {
             if account.reset {
                 resets.insert(*address);
             }
         }
         let mut reset_keys = BTreeSet::new();
-        for (address, key) in self.storages.keys() {
+        for (address, key) in self.state.storages.keys() {
             if resets.contains(address) {
                 reset_keys.insert((*address, *key));
             }
         }
         for (address, key) in reset_keys {
-            self.storages.remove(&(address, key));
+            self.state.storages.remove(&(address, key));
         }
 
-        self.accounts.append(&mut exited.accounts);
-        self.storages.append(&mut exited.storages);
-        self.deletes.append(&mut exited.deletes);
+        self.state.accounts.append(&mut exited.state.accounts);
+        self.state.storages.append(&mut exited.state.storages);
+        self.state.deletes.append(&mut exited.state.deletes);
 
         Ok(())
     }
@@ -169,7 +108,7 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn known_account(&self, address: H160) -> Option<&MemoryStackAccount> {
-        if let Some(account) = self.accounts.get(&address) {
+        if let Some(account) = self.state.accounts.get(&address) {
             Some(account)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.known_account(address)
@@ -209,11 +148,11 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn known_storage(&self, address: H160, key: H256) -> Option<H256> {
-        if let Some(value) = self.storages.get(&(address, key)) {
+        if let Some(value) = self.state.storages.get(&(address, key)) {
             return Some(*value);
         }
 
-        if let Some(account) = self.accounts.get(&address) {
+        if let Some(account) = self.state.accounts.get(&address) {
             if account.reset {
                 return Some(H256::default());
             }
@@ -227,7 +166,7 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn known_original_storage(&self, address: H160) -> Option<H256> {
-        if let Some(account) = self.accounts.get(&address) {
+        if let Some(account) = self.state.accounts.get(&address) {
             if account.reset {
                 return Some(H256::default());
             }
@@ -261,7 +200,7 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn deleted(&self, address: H160) -> bool {
-        if self.deletes.contains(&address) {
+        if self.state.deletes.contains(&address) {
             return true;
         }
 
@@ -272,8 +211,12 @@ impl<'config> CoreStackSubstate<'config> {
         false
     }
 
-    fn account_mut<B: Backend>(&mut self, address: H160, backend: &B) -> &mut MemoryStackAccount {
-        if self.accounts.get(&address).is_none() {
+    pub fn account_mut<B: Backend>(
+        &mut self,
+        address: H160,
+        backend: &B,
+    ) -> &mut MemoryStackAccount {
+        if self.state.accounts.get(&address).is_none() {
             let account = self
                 .known_account(address)
                 .cloned()
@@ -286,10 +229,11 @@ impl<'config> CoreStackSubstate<'config> {
                     code: None,
                     reset: false,
                 });
-            self.accounts.insert(address, account);
+            self.state.accounts.insert(address, account);
         }
 
-        self.accounts
+        self.state
+            .accounts
             .get_mut(&address)
             .expect("New account was just inserted")
     }
@@ -299,27 +243,27 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn set_storage(&mut self, address: H160, key: H256, value: H256) {
-        self.storages.insert((address, key), value);
+        self.state.storages.insert((address, key), value);
     }
 
     pub fn reset_storage<B: Backend>(&mut self, address: H160, backend: &B) {
         let mut removing = Vec::new();
 
-        for (oa, ok) in self.storages.keys() {
+        for (oa, ok) in self.state.storages.keys() {
             if *oa == address {
                 removing.push(*ok);
             }
         }
 
         for ok in removing {
-            self.storages.remove(&(address, ok));
+            self.state.storages.remove(&(address, ok));
         }
 
         self.account_mut(address, backend).reset = true;
     }
 
     pub fn log(&mut self, address: H160, topics: Vec<H256>, data: Vec<u8>) {
-        self.logs.push(Log {
+        self.state.logs.push(Log {
             address,
             topics,
             data,
@@ -327,7 +271,7 @@ impl<'config> CoreStackSubstate<'config> {
     }
 
     pub fn set_deleted(&mut self, address: H160) {
-        self.deletes.insert(address);
+        self.state.deletes.insert(address);
     }
 
     pub fn set_code<B: Backend>(&mut self, address: H160, code: Vec<u8>, backend: &B) {
