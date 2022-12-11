@@ -24,6 +24,12 @@ pub trait KeyValueDb {
 pub trait KeyValueStore: KeyValueStoreReadonly {
     /// Do operation for set and del.
     fn ops(&self, ops: &[(impl AsRef<[u8]>, Option<StoreBytes>)]) -> Result<(), Self::Error>;
+
+    fn set(&self, key: impl AsRef<[u8]>, value: StoreBytes) -> Result<(), Self::Error>;
+
+    fn del(&self, key: impl AsRef<[u8]>) -> Result<(), Self::Error>;
+
+    fn commit(&self) -> Result<(), Self::Error>;
 }
 
 /// Readonly key-value store.
@@ -33,12 +39,12 @@ pub trait KeyValueStoreReadonly: Clone {
     /// Read value by equal key.
     fn get(&self, key: impl AsRef<[u8]>) -> Result<Option<StoreBytes>, Self::Error>;
 
-    /// Read value by less key.
-    fn get_lt_prefix(
-        &self,
-        prefix: impl AsRef<[u8]>,
-        key: impl AsRef<[u8]>,
-    ) -> Result<Option<StoreBytes>, Self::Error>;
+    type Range: Iterator<Item = Result<(StoreBytes, StoreBytes), Self::Error>>;
+
+    /// Get range of [begin, end].
+    ///
+    /// Begin and end sare close.
+    fn range(&self, begin: impl AsRef<[u8]>, end: impl AsRef<[u8]>, reverse: bool) -> Self::Range;
 }
 
 /// Versioned key-value store.
@@ -49,13 +55,16 @@ pub trait VersionedKeyValueReadOnly: KeyValueStoreReadonly {
         key: impl AsRef<[u8]>,
         version: u64,
     ) -> Result<Option<StoreBytes>, Self::Error> {
-        if let Some(data) = self.get(&key)? {
-            Ok(Some(data))
-        } else {
-            let mut lt_key = key.as_ref().to_vec();
-            lt_key.extend_from_slice(&version.to_le_bytes());
+        let mut lt_key = key.as_ref().to_vec();
+        lt_key.extend_from_slice(&version.to_le_bytes());
 
-            self.get_lt_prefix(key, lt_key)
+        let mut iter = self.range(key, lt_key, true);
+
+        if let Some(v) = iter.next() {
+            let kv = v?;
+            Ok(Some(kv.1))
+        } else {
+            Ok(None)
         }
     }
 }

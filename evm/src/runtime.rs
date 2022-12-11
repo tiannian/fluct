@@ -2,20 +2,20 @@ use evm::{
     executor::stack::{StackExecutor, StackSubstateMetadata},
     Config, ExitReason,
 };
-use fluct_core::{KeyValueStoreReadonly, Store};
+use fluct_core::{KeyValueStore, KeyValueStoreReadonly, Store};
 use primitive_types::{H160, H256, U256};
 
 use crate::{
     stack::{CoreBackend, CoreStackState, State},
-    AddressRecorder, CoreVicinity, Precompiles,
+    AddressRecorder, CoreVicinity, Precompiles, Result,
 };
 
 pub struct Runtime<'a, KV, R> {
     pub(crate) config: Config,
     pub(crate) vicinity: CoreVicinity,
-    pub(crate) recoder: Option<R>,
+    pub recoder: Option<R>,
     pub(crate) store: &'a Store<KV>,
-    pub state: Option<State>,
+    pub(crate) state: Option<State>,
 }
 
 impl<'a, KV, R> Runtime<'a, KV, R>
@@ -104,5 +104,14 @@ where
         self.state = Some(state);
 
         res
+    }
+}
+
+impl<'a, KV, R> Runtime<'a, KV, R>
+where
+    KV: KeyValueStore,
+{
+    pub fn apply(&self) -> Result<()> {
+        Ok(())
     }
 }
