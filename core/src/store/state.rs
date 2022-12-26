@@ -86,6 +86,10 @@ impl<KV: KeyValueStoreReadonly> StateStore<KV> {
             Ok(None)
         }
     }
+
+    pub fn iter_storages(&self, address: H160, height: u64) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl<KV: KeyValueStore> StateStore<KV> {
@@ -105,6 +109,35 @@ impl<KV: KeyValueStore> StateStore<KV> {
         self.account
             .del_by_version(addr.as_bytes(), height)
             .map_err(Error::store)?;
+        Ok(())
+    }
+
+    pub fn set_code(&self, addr: H160, code: Vec<u8>, height: u64) -> Result<()> {
+        self.code
+            .set_by_version(addr.as_bytes(), code, height)
+            .map_err(Error::store)?;
+        Ok(())
+    }
+
+    pub fn del_code(&self, addr: H160, height: u64) -> Result<()> {
+        self.code
+            .del_by_version(addr.as_bytes(), height)
+            .map_err(Error::store)?;
+        Ok(())
+    }
+
+    pub fn set_storage(&self, addr: H160, index: H256, value: H256, height: u64) -> Result<()> {
+        let mut key: Vec<u8> = addr.0.into();
+        key.extend_from_slice(index.as_bytes());
+
+        self.storage
+            .set_by_version(key, value.0.into(), height)
+            .map_err(Error::store)?;
+
+        Ok(())
+    }
+
+    pub fn del_storages(&self, addr: H160, height: u64) -> Result<()> {
         Ok(())
     }
 }

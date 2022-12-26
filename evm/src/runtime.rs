@@ -1,7 +1,7 @@
 use core::mem;
 
 use evm::{
-    executor::stack::{StackExecutor, StackSubstateMetadata},
+    executor::stack::{Log, StackExecutor, StackSubstateMetadata},
     Config, ExitReason,
 };
 use fluct_core::{KeyValueStore, KeyValueStoreReadonly, Store};
@@ -112,16 +112,44 @@ impl<'a, KV, R> Runtime<'a, KV, R>
 where
     KV: KeyValueStore,
 {
-    pub fn apply(&self, state: State) -> Result<()> {
+    fn remove(&self, addr: H160) -> Result<()> {
+        self.store
+            .state
+            .del_basic(addr, self.vicinity.block_height)?;
+        self.store
+            .state
+            .del_code(addr, self.vicinity.block_height)?;
+        Ok(())
+    }
+
+    pub fn apply(&self, state: State) -> Result<Vec<Log>> {
         for (k, v) in state.accounts.into_iter() {
-            self.store.state.set_basic(
-                k,
-                v.basic.balance,
-                v.basic.nonce,
-                self.vicinity.block_height,
-            )?;
+            if !state.deletes.contains(&k) {
+                self.store.state.set_basic(
+                    k,
+                    v.basic.balance,
+                    v.basic.nonce,
+                    self.vicinity.block_height,
+                )?;
+
+                if let Some(code) = v.code {
+                    self.store
+                        .state
+                        .set_code(k, code, self.vicinity.block_height)?;
+                } else {
+                    self.store.state.del_code(k, self.vicinity.block_height)?;
+                }
+            } else {
+                self.remove(k)?;
+            }
         }
 
-        Ok(())
+        for ((addr, index), value) in state.storages.into_iter() {
+            self.store
+                .state
+                .set_storage(addr, index, value, self.vicinity.block_height)?;
+        }
+
+        Ok(state.logs)
     }
 }
