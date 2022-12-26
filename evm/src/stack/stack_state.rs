@@ -162,10 +162,14 @@ impl<'backend, 'config, B: Backend> StackState<'config> for CoreStackState<'back
 }
 
 impl<'backend, 'config, B: Backend> CoreStackState<'backend, 'config, B> {
-    pub fn new(metadata: StackSubstateMetadata<'config>, backend: &'backend B) -> Self {
+    pub fn new(
+        backend: &'backend B,
+        metadata: StackSubstateMetadata<'config>,
+        state: Option<State>,
+    ) -> Self {
         Self {
             backend,
-            substate: CoreStackSubstate::new(metadata),
+            substate: CoreStackSubstate::new(metadata, state),
         }
     }
 

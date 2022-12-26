@@ -2,6 +2,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error(transparent)]
+    CoreError(#[from] fluct_core::Error),
+
     #[error("Missing field to build runtime")]
     MissingFieldToBuildRuntime,
 }

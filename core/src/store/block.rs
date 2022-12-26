@@ -1,7 +1,7 @@
 use ethereum::Header;
 use primitive_types::H256;
 
-use crate::{Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
+use crate::{utils, Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result};
 
 /// Block store
 pub struct BlockStore<KV> {
@@ -60,7 +60,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
         {
             let mut bytes = [0u8; 8];
             bytes.copy_from_slice(&data);
-            u64::from_be_bytes(bytes)
+            utils::u64_from_bytes(bytes)
         } else {
             0
         };
@@ -85,7 +85,7 @@ impl<KV: KeyValueStoreReadonly> BlockStore<KV> {
     pub fn block_hash_by_height(&self, height: u64) -> Result<Option<H256>> {
         if let Some(data) = self
             .blockheight
-            .get(height.to_le_bytes())
+            .get(utils::u64_to_bytes(&height))
             .map_err(Error::store)?
         {
             Ok(Some(H256::from_slice(&data)))
@@ -115,7 +115,7 @@ impl<KV: KeyValueStore> BlockStore<KV> {
         let ops = &[(hash.as_bytes(), Some(bytes.into()))];
         self.blockheader.ops(ops).map_err(Error::store)?;
 
-        let number = header.number.as_u64().to_le_bytes();
+        let number = utils::u64_to_bytes(&header.number.as_u64());
         let ops = &[
             (&number, Some(hash.to_fixed_bytes().into())),
             (&Self::LATEST_HEIGHT, Some(number.into())),

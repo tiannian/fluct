@@ -1,3 +1,5 @@
+use core::mem;
+
 use evm::{
     executor::stack::{StackExecutor, StackSubstateMetadata},
     Config, ExitReason,
@@ -30,7 +32,7 @@ where
         value: U256,
         data: Vec<u8>,
         gas_limit: u64,
-    ) -> (ExitReason, Vec<u8>) {
+    ) -> (ExitReason, Vec<u8>, State) {
         let metadata = StackSubstateMetadata::new(gas_limit, &self.config);
         let backend = CoreBackend::new(
             &self.store.block,
@@ -39,15 +41,15 @@ where
             from,
             self.recoder.as_mut(),
         );
-        let state = CoreStackState::new(metadata, &backend);
+        let s = mem::take(&mut self.state);
+        let state = CoreStackState::new(&backend, metadata, s);
         let precompiles = Precompiles::default();
         let mut executor = StackExecutor::new_with_precompiles(state, &self.config, &precompiles);
-        let res = executor.transact_call(from, to, value, data, gas_limit, Vec::new());
+        let (e, d) = executor.transact_call(from, to, value, data, gas_limit, Vec::new());
 
         let state = executor.into_state().deconstruct();
-        self.state = Some(state);
 
-        res
+        (e, d, state)
     }
 
     pub fn create(
@@ -56,7 +58,7 @@ where
         value: U256,
         init_code: Vec<u8>,
         gas_limit: u64,
-    ) -> (ExitReason, Vec<u8>) {
+    ) -> (ExitReason, Vec<u8>, State) {
         let metadata = StackSubstateMetadata::new(gas_limit, &self.config);
         let backend = CoreBackend::new(
             &self.store.block,
@@ -65,17 +67,16 @@ where
             from,
             self.recoder.as_mut(),
         );
-        let state = CoreStackState::new(metadata, &backend);
+        let s = mem::take(&mut self.state);
+        let state = CoreStackState::new(&backend, metadata, s);
         let precompiles = Precompiles::default();
         let mut executor = StackExecutor::new_with_precompiles(state, &self.config, &precompiles);
 
-        let res = executor.transact_create(from, value, init_code, gas_limit, Vec::new());
+        let (er, d) = executor.transact_create(from, value, init_code, gas_limit, Vec::new());
 
         let state = executor.into_state().deconstruct();
 
-        self.state = Some(state);
-
-        res
+        (er, d, state)
     }
 
     pub fn create2(
@@ -85,7 +86,7 @@ where
         init_code: Vec<u8>,
         salt: H256,
         gas_limit: u64,
-    ) -> (ExitReason, Vec<u8>) {
+    ) -> (ExitReason, Vec<u8>, State) {
         let metadata = StackSubstateMetadata::new(gas_limit, &self.config);
         let backend = CoreBackend::new(
             &self.store.block,
@@ -94,16 +95,16 @@ where
             from,
             self.recoder.as_mut(),
         );
-        let state = CoreStackState::new(metadata, &backend);
+        let s = mem::take(&mut self.state);
+        let state = CoreStackState::new(&backend, metadata, s);
         let precompiles = Precompiles::default();
         let mut executor = StackExecutor::new_with_precompiles(state, &self.config, &precompiles);
 
-        let res = executor.transact_create2(from, value, init_code, salt, gas_limit, Vec::new());
+        let (e, d) = executor.transact_create2(from, value, init_code, salt, gas_limit, Vec::new());
 
         let state = executor.into_state().deconstruct();
-        self.state = Some(state);
 
-        res
+        (e, d, state)
     }
 }
 
@@ -111,7 +112,16 @@ impl<'a, KV, R> Runtime<'a, KV, R>
 where
     KV: KeyValueStore,
 {
-    pub fn apply(&self) -> Result<()> {
+    pub fn apply(&self, state: State) -> Result<()> {
+        for (k, v) in state.accounts.into_iter() {
+            self.store.state.set_basic(
+                k,
+                v.basic.balance,
+                v.basic.nonce,
+                self.vicinity.block_height,
+            )?;
+        }
+
         Ok(())
     }
 }

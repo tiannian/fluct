@@ -1,6 +1,9 @@
 use primitive_types::{H160, H256, U256};
 
-use crate::{Error, KeyValueDb, KeyValueStoreReadonly, Result, VersionedKeyValueReadOnly};
+use crate::{
+    Error, KeyValueDb, KeyValueStore, KeyValueStoreReadonly, Result, VersionedKeyValue,
+    VersionedKeyValueReadOnly,
+};
 
 /// State store
 ///
@@ -81,5 +84,26 @@ impl<KV: KeyValueStoreReadonly> StateStore<KV> {
         } else {
             Ok(None)
         }
+    }
+}
+
+impl<KV: KeyValueStore> StateStore<KV> {
+    pub fn set_basic(&self, addr: H160, balance: U256, nonce: U256, height: u64) -> Result<()> {
+        let mut data = vec![0u8; 64];
+        balance.to_little_endian(&mut data);
+        nonce.to_little_endian(&mut data[32..]);
+
+        self.account
+            .set_by_version(addr.as_bytes(), data, height)
+            .map_err(Error::store)?;
+
+        Ok(())
+    }
+
+    pub fn del_basic(&self, addr: H160, height: u64) -> Result<()> {
+        self.account
+            .del_by_version(addr.as_bytes(), height)
+            .map_err(Error::store)?;
+        Ok(())
     }
 }

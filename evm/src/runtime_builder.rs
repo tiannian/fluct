@@ -2,58 +2,49 @@ use evm::Config;
 use fluct_core::Store;
 use primitive_types::U256;
 
-use crate::{CoreVicinity, Error, Result, Runtime};
+use crate::{stack::State, CoreVicinity, Error, Result, Runtime};
 
 pub struct RuntimeBuilder<'a, KV, R> {
     config: Option<Config>,
     vicinity: Option<CoreVicinity>,
     recoder: Option<R>,
     store: Option<&'a Store<KV>>,
+    state: Option<State>,
 }
 
 impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
-    pub const fn frontier() -> Self {
-        let config = Config::frontier();
-
+    const fn new(config: Config) -> Self {
         Self {
             config: Some(config),
             vicinity: None,
             recoder: None,
             store: None,
+            state: None,
         }
+    }
+
+    pub const fn frontier() -> Self {
+        let config = Config::frontier();
+
+        Self::new(config)
     }
 
     pub const fn istanbul() -> Self {
         let config = Config::istanbul();
 
-        Self {
-            config: Some(config),
-            vicinity: None,
-            recoder: None,
-            store: None,
-        }
+        Self::new(config)
     }
 
     pub const fn berlin() -> Self {
         let config = Config::berlin();
 
-        Self {
-            config: Some(config),
-            vicinity: None,
-            recoder: None,
-            store: None,
-        }
+        Self::new(config)
     }
 
     pub const fn london() -> Self {
         let config = Config::london();
 
-        Self {
-            config: Some(config),
-            vicinity: None,
-            recoder: None,
-            store: None,
-        }
+        Self::new(config)
     }
 
     pub fn recoder(&mut self, recoder: R) -> &mut Self {
@@ -61,8 +52,8 @@ impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
         self
     }
 
-    pub fn store(&mut self, store: R) -> &mut Self {
-        self.recoder = Some(store);
+    pub fn store(&mut self, store: &'a Store<KV>) -> &mut Self {
+        self.store = Some(store);
         self
     }
 
@@ -79,6 +70,11 @@ impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
         self
     }
 
+    pub fn state(&mut self, state: Option<State>) -> &mut Self {
+        self.state = state;
+        self
+    }
+
     pub fn build(self) -> Result<Runtime<'a, KV, R>> {
         let config = self.config.ok_or(Error::MissingFieldToBuildRuntime)?;
         let vicinity = self.vicinity.ok_or(Error::MissingFieldToBuildRuntime)?;
@@ -89,7 +85,7 @@ impl<'a, KV, R> RuntimeBuilder<'a, KV, R> {
             vicinity,
             recoder: self.recoder,
             store,
-            state: None,
+            state: self.state,
         })
     }
 }

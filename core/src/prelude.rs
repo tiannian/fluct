@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::StoreBytes;
+use crate::{utils, StoreBytes};
 
 /// Database for key value.
 pub trait KeyValueDb {
@@ -43,7 +43,7 @@ pub trait KeyValueStoreReadonly: Clone {
 
     /// Get range of [begin, end].
     ///
-    /// Begin and end sare close.
+    /// Begin and end are closed.
     fn range(&self, begin: impl AsRef<[u8]>, end: impl AsRef<[u8]>, reverse: bool) -> Self::Range;
 }
 
@@ -56,13 +56,21 @@ pub trait VersionedKeyValueReadOnly: KeyValueStoreReadonly {
         version: u64,
     ) -> Result<Option<StoreBytes>, Self::Error> {
         let mut lt_key = key.as_ref().to_vec();
-        lt_key.extend_from_slice(&version.to_le_bytes());
+        lt_key.extend_from_slice(&utils::u64_to_bytes(&version));
 
         let mut iter = self.range(key, lt_key, true);
 
         if let Some(v) = iter.next() {
-            let kv = v?;
-            Ok(Some(kv.1))
+            let (_, mut v) = v?;
+            if let Some(b) = v.get(0) {
+                if *b == 1 {
+                    Ok(Some(v.split_off(1)))
+                } else {
+                    Ok(None)
+                }
+            } else {
+                Ok(Some(v))
+            }
         } else {
             Ok(None)
         }
@@ -70,3 +78,33 @@ pub trait VersionedKeyValueReadOnly: KeyValueStoreReadonly {
 }
 
 impl<T: KeyValueStoreReadonly> VersionedKeyValueReadOnly for T {}
+
+pub trait VersionedKeyValue: KeyValueStore {
+    fn set_by_version(
+        &self,
+        key: impl AsRef<[u8]>,
+        value: StoreBytes,
+        version: u64,
+    ) -> Result<(), Self::Error> {
+        let mut key = key.as_ref().to_vec();
+        key.extend_from_slice(&utils::u64_to_bytes(&version));
+
+        let mut v = vec![1];
+        v.extend(value);
+
+        self.set(key, v)?;
+
+        Ok(())
+    }
+
+    fn del_by_version(&self, key: impl AsRef<[u8]>, version: u64) -> Result<(), Self::Error> {
+        let mut key = key.as_ref().to_vec();
+        key.extend_from_slice(&utils::u64_to_bytes(&version));
+
+        self.set(key, vec![0])?;
+
+        Ok(())
+    }
+}
+
+impl<T: KeyValueStore> VersionedKeyValue for T {}

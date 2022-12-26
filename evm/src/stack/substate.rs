@@ -17,11 +17,17 @@ pub struct CoreStackSubstate<'config> {
 }
 
 impl<'config> CoreStackSubstate<'config> {
-    pub fn new(metadata: StackSubstateMetadata<'config>) -> Self {
+    pub fn new(metadata: StackSubstateMetadata<'config>, state: Option<State>) -> Self {
+        let state = if let Some(s) = state {
+            s
+        } else {
+            State::default()
+        };
+
         Self {
             metadata,
             parent: None,
-            state: State::default(),
+            state,
         }
     }
 
