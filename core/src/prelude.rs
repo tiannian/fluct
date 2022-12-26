@@ -62,7 +62,7 @@ pub trait VersionedKeyValueReadOnly: KeyValueStoreReadonly {
 
         if let Some(v) = iter.next() {
             let (_, mut v) = v?;
-            if let Some(b) = v.get(0) {
+            if let Some(b) = v.first() {
                 if *b == 1 {
                     Ok(Some(v.split_off(1)))
                 } else {
