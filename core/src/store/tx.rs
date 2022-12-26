@@ -58,10 +58,10 @@ impl<KV: KeyValueStore> TxStore<KV> {
         let bytes = tx.encode();
 
         self.tx
-            .ops(&[(txhash.as_bytes(), Some(bytes.into()))])
+            .set(txhash.as_bytes(), bytes.into())
             .map_err(Error::store)?;
         self.tx_meta
-            .ops(&[(txhash.as_bytes(), Some(block_hash.0.into()))])
+            .set(txhash.as_bytes(), block_hash.0.into())
             .map_err(Error::store)?;
 
         Ok(())

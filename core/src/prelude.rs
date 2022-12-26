@@ -22,9 +22,6 @@ pub trait KeyValueDb {
 
 /// Writable key-value store.
 pub trait KeyValueStore: KeyValueStoreReadonly {
-    /// Do operation for set and del.
-    fn ops(&self, ops: &[(impl AsRef<[u8]>, Option<StoreBytes>)]) -> Result<(), Self::Error>;
-
     fn set(&self, key: impl AsRef<[u8]>, value: StoreBytes) -> Result<(), Self::Error>;
 
     fn del(&self, key: impl AsRef<[u8]>) -> Result<(), Self::Error>;

@@ -113,19 +113,22 @@ impl<KV: KeyValueStore> BlockStore<KV> {
         let hash = header.hash();
 
         let bytes = rlp::encode(header);
-        let ops = &[(hash.as_bytes(), Some(bytes.into()))];
-        self.blockheader.ops(ops).map_err(Error::store)?;
+        self.blockheader
+            .set(hash.as_bytes(), bytes.into())
+            .map_err(Error::store)?;
 
         let number = utils::u64_to_bytes(&header.number.as_u64());
-        let ops = &[
-            (&number, Some(hash.to_fixed_bytes().into())),
-            (&Self::LATEST_HEIGHT, Some(number.into())),
-        ];
-        self.blockheight.ops(ops).map_err(Error::store)?;
+        self.blockheight
+            .set(number, hash.to_fixed_bytes().into())
+            .map_err(Error::store)?;
+        self.blockheight
+            .set(Self::LATEST_HEIGHT, number.into())
+            .map_err(Error::store)?;
 
         let bytes = rlp::encode_list(txhashes);
-        let ops = &[(hash.as_bytes(), Some(bytes.into()))];
-        self.txs.ops(ops).map_err(Error::store)?;
+        self.txs
+            .set(hash.as_bytes(), bytes.into())
+            .map_err(Error::store)?;
 
         Ok(())
     }

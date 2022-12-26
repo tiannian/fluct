@@ -45,8 +45,8 @@ impl<KV: KeyValueStoreReadonly> ReceiptStore<KV> {
 
 impl<KV: KeyValueStore> ReceiptStore<KV> {
     pub fn add_receipt(&self, txhash: H256, receipt: EIP658ReceiptData) -> Result<()> {
-        let ops = [(txhash, Some(rlp::encode(&receipt).to_vec()))];
-        self.receipt.ops(&ops).map_err(Error::store)?;
+        let rd = rlp::encode(&receipt).to_vec();
+        self.receipt.set(txhash, rd).map_err(Error::store)?;
 
         for event in receipt.logs {
             for topic in event.topics {

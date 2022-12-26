@@ -24,7 +24,11 @@ macro_rules! define_from_error {
 }
 
 define_from_error!(rlp::DecoderError, Error, RlpDecodeError);
-define_from_error!(ethereum::EnvelopedDecoderError<rlp::DecoderError>, Error, EthereumEnvelopedError);
+define_from_error!(
+    ethereum::EnvelopedDecoderError<rlp::DecoderError>,
+    Error,
+    EthereumEnvelopedError
+);
 
 impl Error {
     pub fn store(e: impl Debug) -> Self {
