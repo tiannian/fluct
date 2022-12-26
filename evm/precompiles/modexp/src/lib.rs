@@ -1,3 +1,5 @@
+#![no_std]
+
 // SPDX-License-Identifier: Apache-2.0
 // This file is part of Frontier.
 //
@@ -15,11 +17,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{
+extern crate alloc;
+
+use core::{
     cmp::{max, Ordering},
     ops::BitAnd,
 };
 
+use alloc::vec::Vec;
 use evm::{
     executor::stack::{PrecompileFailure, PrecompileHandle, PrecompileOutput},
     ExitError, ExitSucceed,

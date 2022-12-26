@@ -1,12 +1,12 @@
-use thiserror::Error;
+use fluct_core::define_from_error;
 
-#[derive(Debug, Error)]
+#[derive(Debug)]
 pub enum Error {
-    #[error(transparent)]
-    CoreError(#[from] fluct_core::Error),
+    CoreError(fluct_core::Error),
 
-    #[error("Missing field to build runtime")]
     MissingFieldToBuildRuntime,
 }
+
+define_from_error!(fluct_core::Error, Error, CoreError);
 
 pub type Result<T> = std::result::Result<T, Error>;

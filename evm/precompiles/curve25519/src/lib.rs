@@ -1,3 +1,5 @@
+#![no_std]
+
 // SPDX-License-Identifier: Apache-2.0
 // This file is part of Frontier.
 //
@@ -15,6 +17,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+extern crate alloc;
+
+use alloc::vec::Vec;
 use curve25519_dalek::{
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,

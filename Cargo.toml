@@ -2,13 +2,13 @@
 members = [
     "core",
 
-#     "evm",
-    # "evm/precompiles/blake2",
-    # "evm/precompiles/bn128",
-    # "evm/precompiles/curve25519",
-    # "evm/precompiles/ed25519",
-    # "evm/precompiles/modexp",
-    # "evm/precompiles/sha3fips",
-    # "evm/precompiles/simple",
+    "evm",
+    "evm/precompiles/blake2",
+    "evm/precompiles/bn128",
+    "evm/precompiles/curve25519",
+    "evm/precompiles/ed25519",
+    "evm/precompiles/modexp",
+    "evm/precompiles/sha3fips",
+    "evm/precompiles/simple",
 ]
 

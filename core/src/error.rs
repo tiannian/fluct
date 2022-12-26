@@ -12,6 +12,7 @@ pub enum Error {
     StoreError(String),
 }
 
+#[macro_export]
 macro_rules! define_from_error {
     ($oe:ty, $te:ty, $ee:ident) => {
         impl From<$oe> for $te {
