@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rlp = "0.5.2"
+rlp = { version = "0.5.2", default-features = false }
 
-thiserror = "1.0.37"
+thiserror = { version = "1.0", package = "thiserror-core", default-features = false }
 
-ethereum = "0.14.0"
-primitive-types = "0.12.1"
+ethereum = { version = "0.14.0", default-features = false }
+primitive-types = { version = "0.12.1", default-features = false }

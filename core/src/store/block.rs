@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ethereum::Header;
 use primitive_types::H256;
 

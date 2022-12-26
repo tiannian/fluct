@@ -1,3 +1,5 @@
+use alloc::vec::Vec;
+
 /// Bytes for key-value store
 pub type StoreBytes = Vec<u8>;
 

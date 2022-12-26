@@ -1,19 +1,29 @@
-use std::fmt::Debug;
+use core::fmt::Debug;
 
-use thiserror::Error;
+use alloc::string::String;
 
 /// Error
-#[derive(Debug, Error)]
+#[derive(Debug)]
 pub enum Error {
-    #[error(transparent)]
-    RlpDecodeError(#[from] rlp::DecoderError),
+    RlpDecodeError(rlp::DecoderError),
 
-    #[error("{0:?}")]
     EthereumEnvelopedError(ethereum::EnvelopedDecoderError<rlp::DecoderError>),
 
-    #[error("{0}")]
     StoreError(String),
 }
+
+macro_rules! define_from_error {
+    ($oe:ty, $te:ty, $ee:ident) => {
+        impl From<$oe> for $te {
+            fn from(e: $oe) -> Self {
+                Self::$ee(e)
+            }
+        }
+    };
+}
+
+define_from_error!(rlp::DecoderError, Error, RlpDecodeError);
+define_from_error!(ethereum::EnvelopedDecoderError<rlp::DecoderError>, Error, EthereumEnvelopedError);
 
 impl Error {
     pub fn store(e: impl Debug) -> Self {
@@ -22,4 +32,4 @@ impl Error {
 }
 
 /// Result with Error
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;

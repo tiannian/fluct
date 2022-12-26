@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ethereum::EIP658ReceiptData;
 use primitive_types::H256;
 

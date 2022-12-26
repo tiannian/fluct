@@ -9,6 +9,6 @@ repository = "https://github.com/paritytech/frontier/"
 
 [dependencies]
 digest = "0.10.6"
-evm = "0.37.0"
+evm = { version = "0.37", default-features = false }
 sha3 = "0.10.6"
 

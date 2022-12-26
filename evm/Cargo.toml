@@ -6,8 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-primitive-types = "0.12.1"
+thiserror = "1.0.37"
 
+primitive-types = { version = "0.12.1", default-features = false }
+
+ethereum = { version = "0.14.0", default-features = false }
 evm = { version = "0.37", default-features = false, features = ["tracing"] }
 
 fluct-core = { version = "0.1", path = "../core" }
@@ -20,8 +23,6 @@ fluct-evm-precompile-blake2 = { version = "0.1", path = "./precompiles/blake2" }
 fluct-evm-precompile-sha3fips = { version = "0.1", path = "./precompiles/sha3fips" }
 fluct-evm-precompile-curve25519 = { version = "0.1", path = "./precompiles/curve25519" }
 fluct-evm-precompile-ed25519 = { version = "0.1", path = "./precompiles/ed25519" }
-ethereum = "0.14.0"
-thiserror = "1.0.37"
 
 [features]
 default = []

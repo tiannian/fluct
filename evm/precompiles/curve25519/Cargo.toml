@@ -8,7 +8,7 @@ description = "Curve25519 elliptic curve precompiles for EVM pallet."
 repository = "https://github.com/paritytech/frontier/"
 
 [dependencies]
-evm = "0.37.0"
+evm = { version = "0.37", default-features = false }
 
 curve25519-dalek = { version = "4.0.0-pre.1", default-features = false, features = ["alloc", "u64_backend"] }
 

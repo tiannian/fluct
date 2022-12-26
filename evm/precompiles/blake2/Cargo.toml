@@ -8,5 +8,5 @@ description = "BLAKE2 precompiles for EVM pallet."
 repository = "https://github.com/paritytech/frontier/"
 
 [dependencies]
-evm = "0.37.0"
+evm = { version = "0.37", default-features = false }
 
