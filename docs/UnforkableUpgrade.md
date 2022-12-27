@@ -4,14 +4,14 @@
 
 ### Store API
 
-```rust
+``` rust
 extern "C" fluct_store_db_open(*const c_char name) -> c_int;
 extern "C" fluct_store_db_open_ro(*const c_char name) -> c_int;
 ```
 
 ### Instance API
 
-```rust
+``` rust
 extern "C" fluct_wasm_instance_run(
     *const c_char name,
     *const u8 args,
@@ -22,7 +22,7 @@ extern "C" fluct_wasm_instance_run(
 
 ## Contracts
 
-```solidity
+``` solidity
 interface UnforkableUpgrade {
     function getVersionByHeight(uint256 height) returns(bytes32 txid) view external;
 
