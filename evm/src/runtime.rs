@@ -108,48 +108,38 @@ where
     }
 }
 
-impl<'a, KV, R> Runtime<'a, KV, R>
+fn remove<KV>(store: &Store<KV>, addr: H160) -> Result<()>
 where
     KV: KeyValueStore,
 {
-    fn remove(&self, addr: H160) -> Result<()> {
-        self.store
-            .state
-            .del_basic(addr, self.vicinity.block_height)?;
-        self.store
-            .state
-            .del_code(addr, self.vicinity.block_height)?;
-        Ok(())
-    }
+    store.state.del_basic(addr)?;
+    store.state.del_code(addr)?;
+    Ok(())
+}
 
-    pub fn apply(&self, state: State) -> Result<Vec<Log>> {
-        for (k, v) in state.accounts.into_iter() {
-            if !state.deletes.contains(&k) {
-                self.store.state.set_basic(
-                    k,
-                    v.basic.balance,
-                    v.basic.nonce,
-                    self.vicinity.block_height,
-                )?;
+pub fn apply<KV>(store: Store<KV>, state: State) -> Result<Vec<Log>>
+where
+    KV: KeyValueStore,
+{
+    let mut store = store;
 
-                if let Some(code) = v.code {
-                    self.store
-                        .state
-                        .set_code(k, code, self.vicinity.block_height)?;
-                } else {
-                    self.store.state.del_code(k, self.vicinity.block_height)?;
-                }
+    for (k, v) in state.accounts.into_iter() {
+        if !state.deletes.contains(&k) {
+            store.state.set_basic(k, v.basic.balance, v.basic.nonce)?;
+
+            if let Some(code) = v.code {
+                store.state.set_code(k, code)?;
             } else {
-                self.remove(k)?;
+                store.state.del_code(k)?;
             }
+        } else {
+            remove(&store, k)?;
         }
-
-        for ((addr, index), value) in state.storages.into_iter() {
-            self.store
-                .state
-                .set_storage(addr, index, value, self.vicinity.block_height)?;
-        }
-
-        Ok(state.logs)
     }
+
+    for ((addr, index), value) in state.storages.into_iter() {
+        store.state.set_storage(addr, index, value)?;
+    }
+
+    Ok(state.logs)
 }

@@ -12,6 +12,9 @@ pub use receipt::*;
 mod state;
 pub use state::*;
 
+mod diff;
+pub use diff::*;
+
 use crate::{KeyValueDb, Result};
 
 /// A store
@@ -29,6 +32,17 @@ pub fn open_store_readonly<Db: KeyValueDb>(db: &Db) -> Result<Store<Db::KeyValue
     let block = open_block_store_readonly(db)?;
     let tx = open_tx_store_readonly(db)?;
     let state = open_state_store_readonly(db)?;
+
+    Ok(Store { block, tx, state })
+}
+
+/// Open store
+///
+/// Used to write state when transaction execute.
+pub fn open_store<Db: KeyValueDb>(db: &Db, height: u64) -> Result<Store<Db::KeyValueStore>> {
+    let block = open_block_store(db)?;
+    let tx = open_tx_store(db)?;
+    let state = open_state_store(db, height)?;
 
     Ok(Store { block, tx, state })
 }

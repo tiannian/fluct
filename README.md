@@ -24,3 +24,11 @@ A hybrid modern blockchain.
   - Block explorer (Blockscout)
   - Framework (Remix, Hardhat)
 
+### Chain
+
+- Genesis
+- Unfork upgrade
+  - WebAssembly Engine
+  - Model of Interface
+  - Upgrade Contract
+

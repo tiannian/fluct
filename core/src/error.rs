@@ -10,6 +10,10 @@ pub enum Error {
     EthereumEnvelopedError(ethereum::EnvelopedDecoderError<rlp::DecoderError>),
 
     StoreError(String),
+
+    WrongTypeId(&'static str),
+
+    WrongInitalForWriteableState,
 }
 
 #[macro_export]

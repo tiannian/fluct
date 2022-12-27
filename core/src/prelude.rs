@@ -72,6 +72,22 @@ pub trait VersionedKeyValueReadOnly: KeyValueStoreReadonly {
             Ok(None)
         }
     }
+
+    fn iterate_version(
+        &self,
+        key: impl AsRef<[u8]>,
+        begin_height: u64,
+        end_height: u64,
+        reverse: bool,
+    ) -> Self::Range {
+        let mut begin = key.as_ref().to_vec();
+        begin.extend_from_slice(&utils::u64_to_bytes(&begin_height));
+
+        let mut end = key.as_ref().to_vec();
+        end.extend_from_slice(&utils::u64_to_bytes(&end_height));
+
+        self.range(begin, end, reverse)
+    }
 }
 
 impl<T: KeyValueStoreReadonly> VersionedKeyValueReadOnly for T {}
