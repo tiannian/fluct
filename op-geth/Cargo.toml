@@ -1,0 +1,16 @@
+[package]
+name = "deop-op-geth"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+log = "0.4.20"
+rust-embed = { version = "8.0.0", features = ["include-exclude", "interpolate-folder-path"] }
+subprocess = "0.2.9"
+tempfile = "3.8.0"
+
+[build-dependencies]
+attohttpc = "0.26.1"
