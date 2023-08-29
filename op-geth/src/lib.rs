@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
-use subprocess::{Popen, PopenConfig};
+use subprocess::{Popen, PopenConfig, Redirection};
 use tempfile::tempdir;
 
 #[derive(RustEmbed)]
@@ -31,7 +31,7 @@ impl Drop for Geth {
 }
 
 impl Geth {
-    fn get_bin_dir(&self) -> PathBuf {
+    pub fn get_bin_dir(&self) -> PathBuf {
         self.work_dir.join("geth")
     }
 
@@ -74,6 +74,11 @@ impl Geth {
     }
 
     pub fn init(&self, datadir: impl AsRef<Path>, genesis_path: impl AsRef<Path>) -> Result<()> {
+        let config = PopenConfig {
+            stderr: Redirection::Pipe,
+            ..Default::default()
+        };
+
         let mut r = Popen::create(
             &[
                 self.get_bin_dir().as_os_str(),
@@ -82,7 +87,7 @@ impl Geth {
                 datadir.as_ref().as_os_str(),
                 genesis_path.as_ref().as_ref(),
             ],
-            PopenConfig::default(),
+            config,
         )?;
 
         if r.wait()?.success() {
@@ -97,6 +102,10 @@ impl Geth {
             Err(anyhow!("Failed: {buf}"))
         }
     }
+
+    pub fn start(&self) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -107,7 +116,6 @@ mod tests {
     fn test_init() {
         let geth = Geth::new().unwrap();
 
-        geth.init("../target/node", "../target/genesis.json")
-            .unwrap();
+        geth.init("../target/node", "genesis.json").unwrap();
     }
 }
