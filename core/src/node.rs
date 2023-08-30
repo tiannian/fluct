@@ -4,7 +4,7 @@ use anyhow::Result;
 use ethers_core::types::Bytes;
 
 use crate::{
-    types::{ChainState, Config, Genesis},
+    types::{ChainState, Config, ConsensusGenesis, Genesis},
     ConsensusService, ExecutionService, Parser, SequencerService, Transaction,
 };
 
@@ -16,7 +16,8 @@ where
     sequencer: S,
     execution: E,
     chain_state: ChainState,
-    genesis: Genesis<Transaction, E::Genesis>,
+    consensus_genesis: ConsensusGenesis<Transaction>,
+    execution_genesis: E::Genesis,
     marker_p: PhantomData<P>,
 }
 
@@ -48,11 +49,11 @@ where
 
         // Genesis
         let gss = fs::read_to_string(config.genesis)?;
-        let genesis: Genesis<Bytes> = serde_json::from_str(&gss)?;
+        let genesis: Genesis<Bytes, E::Genesis> = serde_json::from_str(&gss)?;
 
-        let mut txs = Vec::with_capacity(genesis.transactions.len());
+        let mut txs = Vec::with_capacity(genesis.consensus.transactions.len());
 
-        for tx in &genesis.transactions {
+        for tx in &genesis.consensus.transactions {
             let tx = P::deserialize_transaction(tx)?;
             txs.push(tx);
         }
@@ -62,7 +63,8 @@ where
             sequencer,
             execution,
             chain_state,
-            genesis: (genesis, txs).into(),
+            consensus_genesis: (genesis.consensus, txs).into(),
+            execution_genesis: genesis.execution,
             marker_p: PhantomData,
         })
     }
@@ -70,8 +72,8 @@ where
     pub fn start(&mut self) -> Result<()> {
         // Check is empty chain? Init it.
         if self.chain_state == ChainState::default() {
-            self.consensus.init(&self.genesis)?;
-            self.execution.init(&self.genesis.execution)?;
+            self.consensus.init(&self.consensus_genesis)?;
+            self.execution.init(&self.execution_genesis)?;
         }
 
         self.execution.start()?;

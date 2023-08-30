@@ -1,12 +1,13 @@
 use async_trait::async_trait;
 use ethers_core::types::{Block, BlockId, BlockNumber, Bytes};
+use serde::{Deserialize, Serialize};
 
 use crate::{types, ApiResult, Service, Transaction};
 
 pub trait ExecutionService: Service {
     type API: EngineAPI;
 
-    type Genesis;
+    type Genesis: Serialize + for<'de> Deserialize<'de>;
 
     fn api(&self) -> Self::API;
 

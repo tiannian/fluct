@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
+use deop_core::ExecutionService;
 use rust_embed::RustEmbed;
 use subprocess::{Popen, PopenConfig, Redirection};
 use tempfile::tempdir;

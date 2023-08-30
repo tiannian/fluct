@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use crate::{
-    types::{ChainState, Genesis},
+    types::{ChainState, ConsensusGenesis},
     EngineAPI, SequencerAPI, Service, Transaction,
 };
 
@@ -23,7 +23,7 @@ where
     fn set_seq_api(&mut self, api: S);
 
     /// Use genesis to init chain.
-    fn init(&mut self, genesis: &Genesis<Transaction>) -> Result<(), Self::Error>;
+    fn init(&mut self, genesis: &ConsensusGenesis<Transaction>) -> Result<(), Self::Error>;
 
     fn chain_state(&self) -> ChainState;
 }
