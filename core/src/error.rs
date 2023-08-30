@@ -1,4 +1,4 @@
 #[derive(Debug)]
-pub enum EngineError {}
+pub enum ApiError {}
 
-pub type EngineResult<T> = std::result::Result<T, EngineError>;
+pub type ApiResult<T> = std::result::Result<T, ApiError>;
