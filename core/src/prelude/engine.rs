@@ -6,7 +6,11 @@ use crate::{types, ApiResult, Service, Transaction};
 pub trait ExecutionService: Service {
     type API: EngineAPI;
 
+    type Genesis;
+
     fn api(&self) -> Self::API;
+
+    fn init(&mut self, genesis: &Self::Genesis) -> Result<(), Self::Error>;
 }
 
 #[async_trait]

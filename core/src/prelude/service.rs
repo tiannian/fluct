@@ -1,4 +1,4 @@
-use std::{error::Error, thread};
+use std::error::Error;
 
 pub trait Service: Send + Sync {
     type Error: Error + Send + Sync + 'static;

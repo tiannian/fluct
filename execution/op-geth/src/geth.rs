@@ -102,14 +102,6 @@ impl Geth {
             Err(anyhow!("Failed: {buf}"))
         }
     }
-
-    pub fn start(&self) -> Result<()> {
-        Ok(())
-    }
-
-    pub fn engine(&self) -> Result<()> {
-        Ok(())
-    }
 }
 
 #[cfg(test)]
