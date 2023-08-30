@@ -8,7 +8,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 log = "0.4.20"
-rust-embed = { version = "8.0.0", features = ["include-exclude", "interpolate-folder-path"] }
+rust-embed = { version = "8.0.0", features = [
+  "include-exclude",
+  "interpolate-folder-path",
+] }
 subprocess = "0.2.9"
 tempfile = "3.8.0"
 
