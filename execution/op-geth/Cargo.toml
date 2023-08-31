@@ -1,5 +1,5 @@
 [package]
-name = "deop-op-geth"
+name = "fluct-op-geth"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,7 +14,7 @@ rust-embed = { version = "8.0.0", features = [
 ] }
 subprocess = "0.2.9"
 tempfile = "3.8.0"
-deop-core = { version = "0.1", path = "../../core" }
+fluct-core = { version = "0.1", path = "../../core" }
 async-trait = "0.1.73"
 ethers-core = { version = "2.0.9", features = ["optimism"] }
 thiserror = "1.0.47"

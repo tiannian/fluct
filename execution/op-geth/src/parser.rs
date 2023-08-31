@@ -1,4 +1,3 @@
-use deop_core::{DepositedTransactionRequest, Parser, Transaction};
 use ethers_core::{
     types::{
         transaction::{
@@ -13,6 +12,7 @@ use ethers_core::{
     },
     utils::rlp,
 };
+use fluct_core::{DepositedTransactionRequest, Parser, Transaction};
 use thiserror::Error;
 
 pub struct OpGethParser;
