@@ -15,6 +15,10 @@ rust-embed = { version = "8.0.0", features = [
 subprocess = "0.2.9"
 tempfile = "3.8.0"
 deop-core = { version = "0.1", path = "../../core" }
+async-trait = "0.1.73"
+ethers-core = { version = "2.0.9", features = ["optimism"] }
+thiserror = "1.0.47"
+reqwest = { version = "0.11.20", default-features = false }
 
 [build-dependencies]
 attohttpc = "0.26.1"

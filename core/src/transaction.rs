@@ -1,5 +1,5 @@
 use ethers_core::types::{
-    Eip1559TransactionRequest, Eip2930TransactionRequest, TransactionRequest, H256, U256,
+    Eip1559TransactionRequest, Eip2930TransactionRequest, Signature, TransactionRequest, H256, U256,
 };
 use serde::{Deserialize, Serialize};
 
@@ -12,8 +12,27 @@ pub struct DepositedTransactionRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Transaction {
-    Legacy(TransactionRequest),
-    Eip2930(Eip2930TransactionRequest),
-    Eip1559(Eip1559TransactionRequest),
+    Legacy(TransactionRequest, Signature),
+    Eip2930(Eip2930TransactionRequest, Signature),
+    Eip1559(Eip1559TransactionRequest, Signature),
     Deposited(DepositedTransactionRequest),
+}
+
+pub mod transaction_utils {
+    use ethers_core::types::Bytes;
+
+    use crate::{Parser, Transaction};
+
+    pub fn transaction_to_bytes<P>(txs: Vec<Transaction>) -> Result<Vec<Bytes>, P::Error>
+    where
+        P: Parser,
+    {
+        let mut ret: Vec<Bytes> = Vec::with_capacity(txs.len());
+
+        for tx in txs {
+            ret.push(P::serialize_transaction(&tx).into());
+        }
+
+        Ok(ret)
+    }
 }

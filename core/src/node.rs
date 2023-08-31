@@ -50,20 +50,14 @@ where
         // Genesis
         let gss = fs::read_to_string(config.genesis)?;
         let genesis: Genesis<Bytes, E::Genesis> = serde_json::from_str(&gss)?;
-
-        let mut txs = Vec::with_capacity(genesis.consensus.transactions.len());
-
-        for tx in &genesis.consensus.transactions {
-            let tx = P::deserialize_transaction(tx)?;
-            txs.push(tx);
-        }
+        let genesis = genesis.from_transaction::<P>()?;
 
         Ok(Self {
             consensus,
             sequencer,
             execution,
             chain_state,
-            consensus_genesis: (genesis.consensus, txs).into(),
+            consensus_genesis: genesis.consensus,
             execution_genesis: genesis.execution,
             marker_p: PhantomData,
         })
