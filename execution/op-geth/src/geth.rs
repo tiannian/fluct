@@ -112,6 +112,6 @@ mod tests {
     fn test_init() {
         let geth = Geth::new().unwrap();
 
-        geth.init("../target/node", "genesis.json").unwrap();
+        geth.init("../../target/node", "genesis.json").unwrap();
     }
 }
