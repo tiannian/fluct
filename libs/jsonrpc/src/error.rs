@@ -35,8 +35,6 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub type RpcResult<T> = std::result::Result<Option<T>, RpcError>;
-
 /// Represents a JSON-RPC error
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

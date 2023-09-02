@@ -1,8 +1,9 @@
 use async_trait::async_trait;
 use ethers_core::types::{Block, BlockId, BlockNumber, Bytes};
+use fluct_jsonrpc::Result as RpcResult;
 use serde::{Deserialize, Serialize};
 
-use crate::{types, ApiResult, Service, Transaction};
+use crate::{types, Service, Transaction};
 
 pub trait ExecutionService: Service {
     type API: EngineAPI;
@@ -19,22 +20,22 @@ pub trait EngineAPI {
     async fn engine_fork_choice(
         &self,
         state: &types::ForkchoiceState,
-        attr: &types::PayloadAttributesV1<Transaction>,
-    ) -> ApiResult<types::ForkChoiceResult>;
+        attr: &types::PayloadAttributes<Transaction>,
+    ) -> Result<types::ForkChoiceResult, types::ForkChoiceError>;
 
     async fn engine_new_payload(
         &self,
         payload: &types::ExecutionPayload<Transaction>,
-    ) -> ApiResult<types::Status>;
+    ) -> RpcResult<types::Status>;
 
     async fn engine_get_payload(
         &self,
         payload_id: &Bytes,
-    ) -> ApiResult<types::ExecutionPayload<Transaction>>;
+    ) -> RpcResult<types::ExecutionPayload<Transaction>>;
 
-    async fn eth_block_number(&self) -> ApiResult<BlockNumber>;
+    async fn eth_block_number(&self) -> RpcResult<BlockNumber>;
 
-    async fn eth_chain_id(&self) -> ApiResult<u64>;
+    async fn eth_chain_id(&self) -> RpcResult<u64>;
 
-    async fn eth_get_block(&self, block: BlockId) -> ApiResult<Block<Transaction>>;
+    async fn eth_get_block(&self, block: BlockId) -> RpcResult<Block<Transaction>>;
 }

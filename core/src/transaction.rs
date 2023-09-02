@@ -23,14 +23,27 @@ pub mod transaction_utils {
 
     use crate::{Parser, Transaction};
 
-    pub fn transaction_to_bytes<P>(txs: Vec<Transaction>) -> Result<Vec<Bytes>, P::Error>
+    pub fn transaction_to_bytes<P>(txs: &[Transaction]) -> Result<Vec<Bytes>, P::Error>
     where
         P: Parser,
     {
-        let mut ret: Vec<Bytes> = Vec::with_capacity(txs.len());
+        let mut ret = Vec::with_capacity(txs.len());
 
         for tx in txs {
-            ret.push(P::serialize_transaction(&tx).into());
+            ret.push(P::serialize_transaction(tx).into());
+        }
+
+        Ok(ret)
+    }
+
+    pub fn bytes_to_transaction<P>(txs: &[Bytes]) -> Result<Vec<Transaction>, P::Error>
+    where
+        P: Parser,
+    {
+        let mut ret = Vec::with_capacity(txs.len());
+
+        for tx in txs {
+            ret.push(P::deserialize_transaction(tx)?);
         }
 
         Ok(ret)

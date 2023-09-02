@@ -13,9 +13,9 @@ pub struct RpcResponse<T> {
     pub id: Value,
 }
 
-impl<T> From<RpcResponse<T>> for Result<Option<T>, RpcError> {
-    fn from(value: RpcResponse<T>) -> Self {
-        match (value.result, value.error) {
+impl<T> RpcResponse<T> {
+    pub fn into_result(self) -> Result<Option<T>, RpcError> {
+        match (self.result, self.error) {
             (Some(v), _) => Ok(Some(v)),
             (None, Some(e)) => Err(e),
             (None, None) => Ok(None),
