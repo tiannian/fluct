@@ -1,5 +1,4 @@
 use ethers_core::types::{Bytes, H160, H256, U256};
-use fluct_jsonrpc::{Error, ErrorCode, RpcError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,43 +37,6 @@ impl<T> ExecutionPayload<T> {
             base_fee_per_gas: self.base_fee_per_gas,
             block_hash: self.block_hash,
             transactions: txs,
-        }
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum NewPayloadError {
-    #[error("{0}")]
-    UnknownRpcError(RpcError),
-    #[error(transparent)]
-    JsonrpcQueryError(#[from] Error),
-    #[error("{0}")]
-    Custom(String),
-}
-
-impl From<RpcError> for NewPayloadError {
-    fn from(value: RpcError) -> Self {
-        Self::UnknownRpcError(value)
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum GetPayloadError {
-    #[error("Unknown payload")]
-    UnknownPayload,
-    #[error("{0}")]
-    UnknownRpcError(RpcError),
-    #[error(transparent)]
-    JsonrpcQueryError(#[from] Error),
-    #[error("{0}")]
-    Custom(String),
-}
-
-impl From<RpcError> for GetPayloadError {
-    fn from(value: RpcError) -> Self {
-        match value.code {
-            ErrorCode::ServerError(-38001) => Self::UnknownPayload,
-            _ => Self::UnknownRpcError(value),
         }
     }
 }

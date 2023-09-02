@@ -1,5 +1,4 @@
 use ethers_core::types::{Bytes, H256};
-use fluct_jsonrpc::{Error, ErrorCode, RpcError};
 use serde::{Deserialize, Serialize};
 
 use super::Status;
@@ -25,28 +24,4 @@ pub struct PayloadStatus {
 pub struct ForkChoiceResult {
     payload_status: PayloadStatus,
     payload_id: Option<Bytes>,
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum ForkChoiceError {
-    #[error("Invalid forkchoice state")]
-    InvalidForkChoiceState,
-    #[error("Invalid payload attributes")]
-    InvalidPayloadAttributes,
-    #[error("{0}")]
-    UnknownRpcError(RpcError),
-    #[error(transparent)]
-    JsonrpcQueryError(#[from] Error),
-    #[error("{0}")]
-    Custom(String),
-}
-
-impl From<RpcError> for ForkChoiceError {
-    fn from(value: RpcError) -> Self {
-        match value.code {
-            ErrorCode::ServerError(-38002) => ForkChoiceError::InvalidForkChoiceState,
-            ErrorCode::ServerError(-38003) => ForkChoiceError::InvalidPayloadAttributes,
-            _ => ForkChoiceError::UnknownRpcError(value),
-        }
-    }
 }

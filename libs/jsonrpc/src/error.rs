@@ -28,9 +28,6 @@ pub enum Error {
 
     #[error("Not success, status code is: {0}")]
     NotSuccessCode(hyper::StatusCode),
-
-    #[error("{0}")]
-    Custom(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

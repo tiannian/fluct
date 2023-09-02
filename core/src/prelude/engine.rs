@@ -21,7 +21,7 @@ pub trait EngineAPI {
         &self,
         state: &types::ForkchoiceState,
         attr: &types::PayloadAttributes<Transaction>,
-    ) -> Result<types::ForkChoiceResult, types::ForkChoiceError>;
+    ) -> Result<types::ForkChoiceResult, types::EngineError>;
 
     async fn engine_new_payload(
         &self,
