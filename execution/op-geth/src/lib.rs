@@ -7,5 +7,5 @@ pub use config::*;
 mod engine;
 pub use engine::*;
 
-mod parser;
-pub use parser::*;
+mod error;
+pub use error::*;

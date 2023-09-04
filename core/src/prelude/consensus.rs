@@ -1,17 +1,7 @@
-use std::error::Error;
-
 use crate::{
     types::{ChainState, ConsensusGenesis},
     EngineAPI, SequencerAPI, Service, Transaction,
 };
-
-pub trait Parser {
-    type Error: Error + Sync + Send + 'static;
-
-    fn deserialize_transaction(bytes: &[u8]) -> Result<Transaction, Self::Error>;
-
-    fn serialize_transaction(tx: &Transaction) -> Vec<u8>;
-}
 
 pub trait ConsensusService<E, S>: Service
 where

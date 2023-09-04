@@ -1,19 +1,10 @@
 use async_trait::async_trait;
-use ethers_core::types::{Block, BlockId, BlockNumber, Bytes, SyncingStatus, U64};
-use fluct_core::{
-    transaction_utils,
-    types::{self, PayloadAttributes},
-    EngineAPI, Transaction,
-};
-use fluct_jsonrpc::{
-    client::{RpcClient, RpcResponse},
-    Error, RpcError,
-};
+use ethers_core::types::{Block, BlockId, BlockNumber, Bytes, SyncingStatus, H256, U64};
+use fluct_core::{transaction_utils, types, EngineAPI, Transaction};
+use fluct_jsonrpc::client::{RpcClient, RpcResponse};
 use serde::{Deserialize, Serialize};
 
-use crate::OpGethParser;
-
-pub struct Engine {
+pub struct OpGethEngine {
     client: RpcClient,
 }
 
@@ -28,24 +19,30 @@ enum EngineCall {
     GetPayload((Bytes,)),
     #[serde(rename = "eth_chainId")]
     ChainId(()),
+    #[serde(rename = "eth_blockNumber")]
+    BlockNumber(()),
+    #[serde(rename = "eth_getBlockByNumber")]
+    GetBlockByNumber((BlockNumber, bool)),
+    #[serde(rename = "eth_getBlockByHash")]
+    GetBlockByHash((H256, bool)),
+    #[serde(rename = "eth_syncing")]
+    Syncing(()),
 }
 
-impl Engine {
+#[async_trait]
+impl EngineAPI for OpGethEngine {
     async fn engine_fork_choice(
         &mut self,
         state: types::ForkchoiceState,
         attr: types::PayloadAttributes<Transaction>,
     ) -> Result<types::ForkChoiceResult, types::EngineError> {
-        let txs = transaction_utils::transaction_to_bytes::<OpGethParser>(&attr.transactions)
-            .map_err(|e| types::EngineError::Custom(format!("{e}")))?;
+        let txs = transaction_utils::transaction_to_bytes(&attr.transactions);
 
         let req = EngineCall::ForkChoice(state, attr.into_other_tx(txs));
 
         let res: RpcResponse<types::ForkChoiceResult> = self.client.call(req).await?;
         let res = res.into_result()?;
-        let res = res.ok_or(types::EngineError::Custom(
-            "Failed to get return value".to_string(),
-        ))?;
+        let res = res.ok_or(types::EngineError::EmptyResponse)?;
 
         Ok(res)
     }
@@ -54,16 +51,13 @@ impl Engine {
         &mut self,
         payload: types::ExecutionPayload<Transaction>,
     ) -> Result<types::Status, types::EngineError> {
-        let txs = transaction_utils::transaction_to_bytes::<OpGethParser>(&payload.transactions)
-            .map_err(|e| types::EngineError::Custom(format!("{e}")))?;
+        let txs = transaction_utils::transaction_to_bytes(&payload.transactions);
 
         let req = EngineCall::NewPayload(payload.into_other_tx(txs));
 
         let res: RpcResponse<types::Status> = self.client.call(req).await?;
         let res = res.into_result()?;
-        let res = res.ok_or(types::EngineError::Custom(
-            "Failed to get return value".to_string(),
-        ))?;
+        let res = res.ok_or(types::EngineError::EmptyResponse)?;
 
         Ok(res)
     }
@@ -76,29 +70,52 @@ impl Engine {
 
         let res: RpcResponse<types::ExecutionPayload<Bytes>> = self.client.call(req).await?;
         let res = res.into_result()?;
-        let res = res.ok_or(types::EngineError::Custom(
-            "Failed to get return value".to_string(),
-        ))?;
+        let res = res.ok_or(types::EngineError::EmptyResponse)?;
 
-        let txs = transaction_utils::bytes_to_transaction::<OpGethParser>(&res.transactions)
-            .map_err(|e| types::EngineError::Custom(format!("{e}")))?;
+        let txs = transaction_utils::bytes_to_transaction(&res.transactions)?;
         let res = res.into_other_tx(txs);
         Ok(res)
     }
 
-    /* async fn eth_block_number(&self) -> Result<BlockNumber> {} */
+    async fn eth_block_number(&mut self) -> Result<u64, types::Web3Error> {
+        let req = EngineCall::BlockNumber(());
 
-    async fn eth_chain_id(&mut self) -> Result<u64, Error> {
+        let res: RpcResponse<U64> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
+
+        Ok(res.as_u64())
+    }
+
+    async fn eth_chain_id(&mut self) -> Result<u64, types::Web3Error> {
         let req = EngineCall::ChainId(());
 
         let res: RpcResponse<U64> = self.client.call(req).await?;
-        let res = res.into_result()?;
+        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
 
-        Ok(0)
+        Ok(res.as_u64())
     }
 
-    /*
-    async fn eth_get_block(&self, block: BlockId) -> Result<Block<Transaction>> {} */
+    async fn eth_get_block(
+        &mut self,
+        block: BlockId,
+    ) -> Result<Block<Transaction>, types::Web3Error> {
+        let req = match block {
+            BlockId::Hash(v) => EngineCall::GetBlockByHash((v, true)),
+            BlockId::Number(v) => EngineCall::GetBlockByNumber((v, true)),
+        };
 
-    /* async fn eth_syncing(&mut self) -> Result<SyncingStatus> {} */
+        let res: RpcResponse<Block<Transaction>> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
+
+        Ok(res)
+    }
+
+    async fn eth_syncing(&mut self) -> Result<SyncingStatus, types::Web3Error> {
+        let req = EngineCall::Syncing(());
+
+        let res: RpcResponse<SyncingStatus> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
+
+        Ok(res)
+    }
 }

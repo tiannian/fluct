@@ -107,6 +107,8 @@ mod utils {
         o.insert("id".to_string(), (*id).into());
         o.insert("jsonrpc".to_string(), "2.0".into());
 
+        log::debug!("Request JSONRpc method: {:?}, id: {}", r.get("method"), id);
+
         *id += 1;
 
         Ok(r)

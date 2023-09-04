@@ -8,3 +8,6 @@ pub use transaction::*;
 
 mod node;
 pub use node::*;
+
+mod error;
+pub use error::*;

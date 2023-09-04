@@ -4,10 +4,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
+use fluct_core::{ExecutionService, Service};
 use rust_embed::RustEmbed;
 use subprocess::{Popen, PopenConfig, Redirection};
 use tempfile::tempdir;
+
+use crate::{Error, OpGethEngine, Result};
 
 #[derive(RustEmbed)]
 #[folder = "$OUT_DIR/bin/"]
@@ -18,6 +20,8 @@ pub struct Geth {
     work_dir: PathBuf,
 
     cleanup: bool,
+
+    datadir: PathBuf,
 }
 
 impl Drop for Geth {
@@ -35,12 +39,12 @@ impl Geth {
         self.work_dir.join("geth")
     }
 
-    pub fn new() -> Result<Self> {
+    pub fn new(datadir: impl AsRef<Path>) -> Result<Self> {
         let work_dir = tempdir()?.into_path();
 
         let bin_path = work_dir.join("geth");
 
-        let bin = Assets::get("geth").ok_or(anyhow!("No geth found"))?;
+        let bin = Assets::get("geth").ok_or(Error::NoGethBinaryFound)?;
 
         fs::write(&bin_path, bin.data)?;
 
@@ -59,6 +63,7 @@ impl Geth {
         Ok(Self {
             work_dir,
             cleanup: true,
+            datadir: datadir.as_ref().to_path_buf(),
         })
     }
 
@@ -73,7 +78,7 @@ impl Geth {
         Ok(())
     }
 
-    pub fn init(&self, datadir: impl AsRef<Path>, genesis_path: impl AsRef<Path>) -> Result<()> {
+    pub fn init(&self, genesis_path: impl AsRef<Path>) -> Result<()> {
         let config = PopenConfig {
             stderr: Redirection::Pipe,
             ..Default::default()
@@ -84,7 +89,7 @@ impl Geth {
                 self.get_bin_dir().as_os_str(),
                 "init".as_ref(),
                 "--datadir".as_ref(),
-                datadir.as_ref().as_os_str(),
+                self.datadir.as_os_str(),
                 genesis_path.as_ref().as_ref(),
             ],
             config,
@@ -99,10 +104,36 @@ impl Geth {
                 f.read_to_string(&mut buf)?;
             }
 
-            Err(anyhow!("Failed: {buf}"))
+            Err(Error::SubprocessExecuteError(buf))
         }
     }
 }
+
+impl Service for Geth {
+    type Error = Error;
+
+    fn start(&mut self) -> std::result::Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn stop(&mut self) -> std::result::Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn kill(&mut self) -> std::result::Result<(), Self::Error> {
+        Ok(())
+    }
+}
+
+/* impl ExecutionService for Geth {
+    type API = OpGethEngine;
+
+    type Genesis = ();
+
+    fn api(&self) -> Self::API {}
+
+    fn init(&mut self, genesis: &Self::Genesis) -> std::result::Result<(), Self::Error> {}
+} */
 
 #[cfg(test)]
 mod tests {
@@ -110,8 +141,8 @@ mod tests {
 
     #[test]
     fn test_init() {
-        let geth = Geth::new().unwrap();
+        let geth = Geth::new("../../target/node").unwrap();
 
-        geth.init("../../target/node", "genesis.json").unwrap();
+        geth.init("genesis.json").unwrap();
     }
 }

@@ -3,6 +3,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum EngineError {
+    #[error("Get error response")]
+    EmptyResponse,
     #[error("Invalid forkchoice state")]
     InvalidForkChoiceState,
     #[error("Invalid payload attributes")]
@@ -11,6 +13,8 @@ pub enum EngineError {
     UnknownRpcError(RpcError),
     #[error(transparent)]
     JsonrpcQueryError(#[from] Error),
+    #[error(transparent)]
+    FluctCoreError(#[from] crate::Error),
     #[error("{0}")]
     Custom(String),
 }
@@ -22,5 +26,22 @@ impl From<RpcError> for EngineError {
             ErrorCode::ServerError(-38003) => Self::InvalidPayloadAttributes,
             _ => Self::UnknownRpcError(value),
         }
+    }
+}
+
+#[derive(Debug, Error)]
+pub enum Web3Error {
+    #[error("Get error response")]
+    EmptyResponse,
+
+    #[error("{0}")]
+    UnknownRpcError(RpcError),
+    #[error(transparent)]
+    JsonrpcQueryError(#[from] Error),
+}
+
+impl From<RpcError> for Web3Error {
+    fn from(value: RpcError) -> Self {
+        Self::UnknownRpcError(value)
     }
 }

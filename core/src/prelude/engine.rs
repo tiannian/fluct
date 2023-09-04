@@ -1,6 +1,5 @@
 use async_trait::async_trait;
-use ethers_core::types::{Block, BlockId, BlockNumber, Bytes};
-use fluct_jsonrpc::Result as RpcResult;
+use ethers_core::types::{Block, BlockId, Bytes, SyncingStatus};
 use serde::{Deserialize, Serialize};
 
 use crate::{types, Service, Transaction};
@@ -18,24 +17,29 @@ pub trait ExecutionService: Service {
 #[async_trait]
 pub trait EngineAPI {
     async fn engine_fork_choice(
-        &self,
-        state: &types::ForkchoiceState,
-        attr: &types::PayloadAttributes<Transaction>,
+        &mut self,
+        state: types::ForkchoiceState,
+        attr: types::PayloadAttributes<Transaction>,
     ) -> Result<types::ForkChoiceResult, types::EngineError>;
 
     async fn engine_new_payload(
-        &self,
-        payload: &types::ExecutionPayload<Transaction>,
-    ) -> RpcResult<types::Status>;
+        &mut self,
+        payload: types::ExecutionPayload<Transaction>,
+    ) -> Result<types::Status, types::EngineError>;
 
     async fn engine_get_payload(
-        &self,
-        payload_id: &Bytes,
-    ) -> RpcResult<types::ExecutionPayload<Transaction>>;
+        &mut self,
+        payload_id: Bytes,
+    ) -> Result<types::ExecutionPayload<Transaction>, types::EngineError>;
 
-    async fn eth_block_number(&self) -> RpcResult<BlockNumber>;
+    async fn eth_block_number(&mut self) -> Result<u64, types::Web3Error>;
 
-    async fn eth_chain_id(&self) -> RpcResult<u64>;
+    async fn eth_chain_id(&mut self) -> Result<u64, types::Web3Error>;
 
-    async fn eth_get_block(&self, block: BlockId) -> RpcResult<Block<Transaction>>;
+    async fn eth_get_block(
+        &mut self,
+        block: BlockId,
+    ) -> Result<Block<Transaction>, types::Web3Error>;
+
+    async fn eth_syncing(&mut self) -> Result<SyncingStatus, types::Web3Error>;
 }

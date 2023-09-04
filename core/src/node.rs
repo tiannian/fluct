@@ -1,14 +1,14 @@
-use std::{fs, marker::PhantomData, path::Path};
+use std::{fs, path::Path};
 
 use anyhow::Result;
 use ethers_core::types::Bytes;
 
 use crate::{
     types::{ChainState, Config, ConsensusGenesis, Genesis},
-    ConsensusService, ExecutionService, Parser, SequencerService, Transaction,
+    ConsensusService, ExecutionService, SequencerService, Transaction,
 };
 
-pub struct Node<C, S, E, P>
+pub struct Node<C, S, E>
 where
     E: ExecutionService,
 {
@@ -18,15 +18,13 @@ where
     chain_state: ChainState,
     consensus_genesis: ConsensusGenesis<Transaction>,
     execution_genesis: E::Genesis,
-    marker_p: PhantomData<P>,
 }
 
-impl<C, S, E, P> Node<C, S, E, P>
+impl<C, S, E> Node<C, S, E>
 where
     C: ConsensusService<E::API, S::API>,
     S: SequencerService,
     E: ExecutionService,
-    P: Parser,
 {
     pub fn new(consensus: C, sequencer: S, execution: E, config: Config) -> Result<Self> {
         let mut consensus = consensus;
@@ -50,7 +48,7 @@ where
         // Genesis
         let gss = fs::read_to_string(config.genesis)?;
         let genesis: Genesis<Bytes, E::Genesis> = serde_json::from_str(&gss)?;
-        let genesis = genesis.from_transaction::<P>()?;
+        let genesis = genesis.from_transaction()?;
 
         Ok(Self {
             consensus,
@@ -59,7 +57,6 @@ where
             chain_state,
             consensus_genesis: genesis.consensus,
             execution_genesis: genesis.execution,
-            marker_p: PhantomData,
         })
     }
 

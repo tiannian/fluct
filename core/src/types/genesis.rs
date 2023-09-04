@@ -1,7 +1,7 @@
 use ethers_core::types::{Bytes, H256, U256};
 use serde::{Deserialize, Serialize};
 
-use crate::{Parser, Transaction};
+use crate::{transaction_utils, Error, Transaction};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Genesis<T, E> {
@@ -22,15 +22,8 @@ pub struct ConsensusGenesis<T> {
 }
 
 impl<E> Genesis<Bytes, E> {
-    pub fn from_transaction<P>(self) -> Result<Genesis<Transaction, E>, P::Error>
-    where
-        P: Parser,
-    {
-        let mut transactions = Vec::with_capacity(self.consensus.transactions.len());
-
-        for tx in &self.consensus.transactions {
-            transactions.push(P::deserialize_transaction(tx)?);
-        }
+    pub fn from_transaction(self) -> Result<Genesis<Transaction, E>, Error> {
+        let transactions = transaction_utils::bytes_to_transaction(&self.consensus.transactions)?;
 
         Ok(Genesis {
             consensus: (self.consensus, transactions).into(),
