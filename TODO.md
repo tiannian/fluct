@@ -16,6 +16,8 @@
 ### Dev
 
 - [ ] Add StepService
+- [ ] StepService for Consensus
+- [ ] Rpc Service
 - [x] Add reset method
 
 ## Version 0.2
