@@ -5,7 +5,7 @@ use super::Status;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ForkchoiceState {
+pub struct ForkChoiceState {
     pub head_block_hash: H256,
     pub safe_block_hash: H256,
     pub finalized_block_hash: H256,

@@ -4,15 +4,24 @@ use fluct_core::{transaction_utils, types, EngineAPI, Transaction};
 use fluct_jsonrpc::client::{RpcClient, RpcResponse};
 use serde::{Deserialize, Serialize};
 
-pub struct OpGethEngine {
+use crate::Error;
+
+pub struct GethEngineAPI {
     client: RpcClient,
+}
+
+impl GethEngineAPI {
+    pub fn new(jwt: &[u8]) -> Result<Self, Error> {
+        let client = RpcClient::new("http://127.0.0.1:8551", Some(jwt))?;
+        Ok(Self { client })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "method", content = "params")]
 enum EngineCall {
     #[serde(rename = "engine_forkchoiceUpdatedV1")]
-    ForkChoice(types::ForkchoiceState, types::PayloadAttributes<Bytes>),
+    ForkChoice(types::ForkChoiceState, types::PayloadAttributes<Bytes>),
     #[serde(rename = "engine_newPayloadV1")]
     NewPayload(types::ExecutionPayload<Bytes>),
     #[serde(rename = "engine_getPayloadV1")]
@@ -30,10 +39,10 @@ enum EngineCall {
 }
 
 #[async_trait]
-impl EngineAPI for OpGethEngine {
+impl EngineAPI for GethEngineAPI {
     async fn engine_fork_choice(
         &mut self,
-        state: types::ForkchoiceState,
+        state: types::ForkChoiceState,
         attr: types::PayloadAttributes<Transaction>,
     ) -> Result<types::ForkChoiceResult, types::EngineError> {
         let txs = transaction_utils::transaction_to_bytes(&attr.transactions);

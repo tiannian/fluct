@@ -44,7 +44,7 @@ pub struct RpcError {
 }
 
 impl RpcError {
-    /// New [Error] with the given [ErrorCode]
+    /// New Error with the given ErrorCode
     pub const fn new(code: ErrorCode) -> Self {
         RpcError {
             message: Cow::Borrowed(code.message()),

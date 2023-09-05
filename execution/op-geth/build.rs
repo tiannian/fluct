@@ -5,7 +5,7 @@ use std::{
 };
 
 pub const UPSTREAM_URL: &str =
-    "https://github.com/tiannian/go-prebuild-binary/raw/main/op-geth/geth-v1.101200.0";
+    "https://media.githubusercontent.com/media/tiannian/go-prebuild-binary/main/op-geth/geth-v1.101200.0";
 
 fn main() {
     #[cfg(unix)]

@@ -4,4 +4,5 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub chain_state: String,
     pub genesis: String,
+    pub store_state: bool,
 }

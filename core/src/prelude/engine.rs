@@ -9,16 +9,21 @@ pub trait ExecutionService: Service {
 
     type Genesis: Serialize + for<'de> Deserialize<'de>;
 
-    fn api(&self) -> Self::API;
+    fn api(&self) -> Result<Self::API, Self::Error>;
 
-    fn init(&mut self, genesis: &Self::Genesis) -> Result<(), Self::Error>;
+    fn init(&mut self, genesis: Self::Genesis) -> Result<(), Self::Error>;
+
+    /// Remove all data in engine.
+    ///
+    /// This method only can call in devnode.
+    fn reset(&mut self) -> Result<(), Self::Error>;
 }
 
 #[async_trait]
 pub trait EngineAPI {
     async fn engine_fork_choice(
         &mut self,
-        state: types::ForkchoiceState,
+        state: types::ForkChoiceState,
         attr: types::PayloadAttributes<Transaction>,
     ) -> Result<types::ForkChoiceResult, types::EngineError>;
 

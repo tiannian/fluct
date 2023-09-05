@@ -1,80 +1,64 @@
-use std::path::PathBuf;
-
-pub struct GraphQL {
-    pub corsdomain: Option<String>,
-    pub vhosts: Vec<String>,
-}
-
-pub enum ApiNamespace {}
+use std::{
+    net::{IpAddr, SocketAddr},
+    path::{Path, PathBuf},
+};
 
 pub struct Http {
-    pub addr: Option<String>,
-    pub api: Vec<ApiNamespace>,
-    pub corsdomain: Vec<String>,
-    pub port: u64,
-    pub rpc_prefix: Option<String>,
-    pub vhosts: Vec<String>,
+    pub listen: SocketAddr,
 }
 
-pub struct Ipc {
-    pub disable: bool,
-    pub path: PathBuf,
-}
-
-pub struct Rpc {
-    pub allow_unprotected_txs: bool,
-    pub evm_timeout: u64,
-    pub gascap: u64,
-    pub txfeecap: u64,
+impl Default for Http {
+    fn default() -> Self {
+        Self {
+            listen: SocketAddr::new(IpAddr::V4([127, 0, 0, 1].into()), 8545),
+        }
+    }
 }
 
 pub struct Ws {
-    pub addr: Option<String>,
-    pub api: Vec<ApiNamespace>,
-    pub origins: Vec<String>,
-    pub port: u64,
-    pub rpc_prefix: Option<String>,
+    pub listen: SocketAddr,
 }
 
-pub struct Dev {
-    pub gaslimit: u128,
-    pub period: u64,
+impl Default for Ws {
+    fn default() -> Self {
+        Self {
+            listen: SocketAddr::new(IpAddr::V4([127, 0, 0, 1].into()), 8546),
+        }
+    }
 }
 
-pub struct Datadir {
-    pub ancient: Option<PathBuf>,
-    pub minfreedisk: u64,
-}
-
-pub enum GCMode {
+#[derive(Debug, Default)]
+pub enum GcMode {
+    #[default]
     Full,
     Archive,
 }
 
-pub enum Network {
-    Goerli,
-    Mainnet,
-    Rinkeby,
-    Sepolia,
-}
-
-pub enum SyncMode {
-    Snap,
-    Full,
-    Light,
+impl GcMode {
+    pub fn to_str(&self) -> &'static str {
+        match self {
+            Self::Full => "full",
+            Self::Archive => "archive",
+        }
+    }
 }
 
 pub struct Config {
-    pub graphql: Option<GraphQL>,
+    pub datadir: PathBuf,
     pub http: Option<Http>,
-    pub ipc: Option<Ipc>,
-    pub rpc: Option<Rpc>,
     pub ws: Option<Ws>,
-    pub dev: Option<Dev>,
-    pub datadir: Option<Datadir>,
-    pub gcmode: GCMode,
-    pub network: Option<Network>,
-    pub networkid: u64,
-    pub snapshot: bool,
-    pub syncmode: SyncMode,
+    pub chainid: u64,
+    pub gcmode: GcMode,
+}
+
+impl Config {
+    pub fn new(chainid: u64, datadir: impl AsRef<Path>) -> Self {
+        Self {
+            datadir: datadir.as_ref().to_path_buf(),
+            http: Some(Http::default()),
+            ws: None,
+            chainid,
+            gcmode: GcMode::Archive,
+        }
+    }
 }

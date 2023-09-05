@@ -1,4 +1,16 @@
 [workspace]
 resolver = "2"
 
-members = ["core", "beacon/poa", "execution/op-geth", "libs/jsonrpc"]
+members = [
+  "core",
+
+  "consensus/dev",
+
+  "execution/op-geth",
+
+  "libs/jsonrpc",
+
+  "sequencer/dev",
+
+  "node/devnode",
+]

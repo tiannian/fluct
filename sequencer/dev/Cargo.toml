@@ -1,0 +1,12 @@
+[package]
+name = "fluct-seq-dev"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1.73"
+fluct-core = { version = "0.1", path = "../../core" }
+thiserror = "1.0.48"
+tokio = { version = "1.32.0", features = ["sync"] }
