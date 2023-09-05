@@ -2,8 +2,15 @@
 
 ## Version 0.1
 
-- [ ] Basic function for devnode
-- [ ] Basic function for op
+- [ ] Devnode
+- [ ] Single proposer node
+- [ ] PoW node
+- [ ] BFT node
+- [ ] Optimistic Rollup
+  - [ ] Batch Submitter
+  - [ ] State Submitter
+  - [ ] DA
+  - [ ] Sequencer
 - [ ] Document design
 
 ### Dev

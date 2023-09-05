@@ -8,10 +8,7 @@ use crate::{
     ConsensusService, ExecutionService, Sequencer,
 };
 
-pub struct Node<C, E, S>
-where
-    E: ExecutionService,
-{
+pub struct Node<C, E, S> {
     consensus: C,
     execution: E,
     config: Config,
