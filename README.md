@@ -23,7 +23,7 @@ Beacon derive Executive Module to execute transaction and apply state.
 
 - [ ] Fifo
 - [ ] Gas fee order
-- [ ] Order from other Consensus
+- [ ] Order from other Consensus(decentralised sequencer)
 
 ### P2P Module
 
