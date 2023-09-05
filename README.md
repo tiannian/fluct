@@ -32,3 +32,7 @@ Sequencer work with beacon to seal block. This module build block from transacti
 ### P2P Module
 
 P2P Module sync transaction into sequencer and sync block into Execution Module.
+
+### RPC Module
+
+Expose block and tx data from execution module, and send transaction into sequencer.
