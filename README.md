@@ -7,21 +7,25 @@
 
 ### Execution Module
 
+Execute transaction and build state locally.
+
 - [X] op-geth: Embeded op-geth into rust code.
 - [ ] workbench: Anvil fork with engine api support
 
 ### Beacon Module
 
-Beacon derive Executive Module to execute transaction and apply state.
+Beacon derive execution module to execute transaction and apply state. This module accept data from consensus.
 
 - [ ] Devnet: Single node with manual block seal.
 - [ ] PoW: PoW to seal block.
 - [ ] BFT: Use bft algorithm to seal block.
-- [ ] Optimistic: Load state from L1 and DA Service
+- [ ] Optimistic: Seal block from L1 and DA Service
 
 ### Sequencer Module
 
-- [ ] Fifo
+Sequencer work with beacon to seal block. This module build block from transaction.
+
+- [X] FIFO
 - [ ] Gas fee order
 - [ ] Order from other Consensus(decentralised sequencer)
 
