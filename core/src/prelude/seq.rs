@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 use crate::Transaction;
 
-pub trait SequencerAPI {
+pub trait SequencerAPI: Clone {
     type Error: Error + Send + Sync + 'static;
 
     fn broadcast_tx(&self, tx: Transaction) -> Result<(), Self::Error>;

@@ -18,6 +18,8 @@
 - [ ] Add StepService
 - [ ] StepService for Consensus
 - [ ] Rpc Service
+- [ ] P2P Service
+- [ ] DA Service
 - [x] Add reset method
 
 ## Version 0.2

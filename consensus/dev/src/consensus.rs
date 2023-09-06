@@ -1,6 +1,6 @@
 use fluct_core::{
     types::{ConsensusGenesis, ForkChoiceState},
-    ConsensusService, EngineAPI, Sequencer, Service, Transaction,
+    ConsensusService, EngineAPI, Sequencer, StepService, Transaction,
 };
 
 use crate::{Error, Result};
@@ -11,23 +11,27 @@ pub struct DevConseneus<S, E> {
     state: ForkChoiceState,
 }
 
-impl<S, E> Service for DevConseneus<S, E>
+impl<S, E> DevConseneus<S, E>
 where
-    S: Sync + Send,
-    E: Sync + Send,
+    S: Sequencer + Sync + Send,
+    E: EngineAPI + Sync + Send,
+{
+    fn _step(&mut self) -> Result<()> {
+        let txs = self.sequencer.claim_batch();
+
+        Ok(())
+    }
+}
+
+impl<S, E> StepService for DevConseneus<S, E>
+where
+    S: Sequencer + Sync + Send,
+    E: EngineAPI + Sync + Send,
 {
     type Error = Error;
 
-    fn start(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    fn stop(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    fn kill(&mut self) -> Result<()> {
-        Ok(())
+    fn step(&mut self) -> Result<()> {
+        self._step()
     }
 }
 
@@ -36,18 +40,16 @@ where
     E: EngineAPI + Sync + Send,
     S: Sequencer + Sync + Send,
 {
-    fn set_engine_api(&mut self, api: E) {
-        self.engine_api = api;
-    }
+    fn new(engine_api: E, sequencer: S, genesis: ConsensusGenesis<Transaction>) -> Result<Self> {
+        let mut s = Self {
+            engine_api,
+            sequencer,
+            state: ForkChoiceState::default(),
+        };
 
-    fn set_sequencer(&mut self, seq: S) {
-        self.sequencer = seq;
-    }
+        s.sequencer.add_txs(genesis.transactions);
 
-    /// Use genesis to init chain.
-    fn init(&mut self, genesis: ConsensusGenesis<Transaction>) -> Result<()> {
-        self.sequencer.add_txs(genesis.transactions);
-        Ok(())
+        Ok(s)
     }
 
     fn chain_state(&self) -> &ForkChoiceState {

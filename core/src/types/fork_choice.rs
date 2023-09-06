@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Status;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ForkChoiceState {
     pub head_block_hash: H256,

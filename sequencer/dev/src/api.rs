@@ -3,6 +3,7 @@ use tokio::sync::mpsc::UnboundedSender;
 
 use crate::{Error, Result};
 
+#[derive(Clone)]
 pub struct DevSequencerAPI {
     pub(crate) sender: UnboundedSender<Transaction>,
 }
