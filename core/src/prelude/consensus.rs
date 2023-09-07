@@ -1,21 +1,21 @@
 use crate::{
     types::{ConsensusGenesis, ForkChoiceState},
-    EngineAPI, Sequencer, StepService, Transaction,
+    EngineAPI, SequencerAPI, SequencerService, Service, Transaction,
 };
 
-pub trait ConsensusService<E, S>: StepService + Sized
+pub trait ConsensusService<E, S>: Service + Sized
 where
     E: EngineAPI,
-    S: Sequencer,
+    S: SequencerService,
 {
     /// Use genesis to init chain.
     fn new(
         engine_api: E,
-        seq: S,
+        sequencer_api: S::API,
+        sequencer: &S,
         genesis: ConsensusGenesis<Transaction>,
+        state: ForkChoiceState,
     ) -> Result<Self, Self::Error>;
 
     fn chain_state(&self) -> &ForkChoiceState;
-
-    fn set_state(&mut self, state: ForkChoiceState);
 }

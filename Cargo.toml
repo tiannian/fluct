@@ -9,6 +9,7 @@ members = [
   "execution/op-geth",
 
   "libs/jsonrpc",
+  "libs/service",
 
   "sequencer/dev",
 

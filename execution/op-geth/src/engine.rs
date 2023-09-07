@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::Error;
 
+#[derive(Clone)]
 pub struct GethEngineAPI {
     client: RpcClient,
 }

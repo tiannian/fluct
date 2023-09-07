@@ -1,66 +1,90 @@
-use std::mem;
+use std::io;
 
+use crate::{ApiMessage, DevSequencerAPI, Error, Result};
 use async_trait::async_trait;
-use fluct_core::{Sequencer, Transaction};
-use tokio::sync::mpsc::{
-    error::TryRecvError, unbounded_channel, UnboundedReceiver, UnboundedSender,
-};
+use fluct_core::{SequencerService, Service, Transaction};
+use fluct_service::{AsyncStepService, AsyncStepServiceWapper1};
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
-use crate::{DevSequencerAPI, Error, Result};
-
-pub struct DevSequencer {
-    receiver: UnboundedReceiver<Transaction>,
-    sender: UnboundedSender<Transaction>,
+struct DevSequencer {
+    receiver: UnboundedReceiver<ApiMessage>,
+    sender: UnboundedSender<ApiMessage>,
     txpool: Vec<Transaction>,
-    pub max_num_tx: usize,
+}
+
+impl Default for DevSequencer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DevSequencer {
-    pub fn new(max_num_tx: usize) -> Self {
+    pub fn new() -> Self {
         let (sender, receiver) = unbounded_channel();
 
         Self {
             receiver,
             sender,
             txpool: Vec::new(),
-            max_num_tx,
         }
+    }
+
+    async fn _step(&mut self) -> Result<()> {
+        let msg = self.receiver.recv().await.ok_or(Error::ChannelClosed)?;
+
+        match msg {
+            ApiMessage::TxHash(hash) => {}
+            ApiMessage::Transaction(tx) => self.txpool.push(tx),
+        }
+
+        Ok(())
     }
 }
 
 #[async_trait]
-impl Sequencer for DevSequencer {
+impl AsyncStepService for DevSequencer {
     type Error = Error;
 
+    async fn step(&mut self) -> Result<()> {
+        self._step().await
+    }
+}
+
+pub struct DevSequencerService(AsyncStepServiceWapper1<DevSequencer>);
+
+impl Default for DevSequencerService {
+    fn default() -> Self {
+        Self(AsyncStepServiceWapper1::new(DevSequencer::new()))
+    }
+}
+
+impl Service for DevSequencerService {
+    type Error = io::Error;
+
+    fn start(&mut self) -> std::result::Result<(), Self::Error> {
+        self.0.start()
+    }
+
+    fn stop(&mut self) -> std::result::Result<(), Self::Error> {
+        self.0.stop()
+    }
+
+    fn kill(&mut self) -> std::result::Result<(), Self::Error> {
+        self.0.kill()
+    }
+}
+
+#[async_trait]
+impl SequencerService for DevSequencerService {
     type API = DevSequencerAPI;
 
-    fn api(&self) -> Self::API {
-        Self::API {
-            sender: self.sender.clone(),
+    fn api(&self) -> DevSequencerAPI {
+        DevSequencerAPI {
+            sender: self.0.service0().sender.clone(),
         }
-    }
-
-    fn add_txs(&mut self, txs: Vec<Transaction>) {
-        self.txpool.extend_from_slice(&txs);
-    }
-
-    fn claim_batch(&mut self) -> Vec<Transaction> {
-        mem::take(&mut self.txpool)
     }
 
     fn txs(&self) -> &[Transaction] {
-        &self.txpool
-    }
-
-    async fn step(&mut self) -> Result<()> {
-        for _ in 0..self.max_num_tx {
-            match self.receiver.try_recv() {
-                Ok(tx) => self.txpool.push(tx),
-                Err(TryRecvError::Empty) => break,
-                Err(TryRecvError::Disconnected) => return Err(Error::ChannelClosed),
-            }
-        }
-
-        Ok(())
+        &self.0.service0().txpool
     }
 }

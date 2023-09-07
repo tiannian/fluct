@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{RpcResponse, RpcResponses};
 
+#[derive(Clone)]
 pub struct RpcClient {
     id: u64,
     url: Uri,

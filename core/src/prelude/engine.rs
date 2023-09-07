@@ -20,7 +20,7 @@ pub trait ExecutionService: Service {
 }
 
 #[async_trait]
-pub trait EngineAPI {
+pub trait EngineAPI: Clone {
     async fn engine_fork_choice(
         &mut self,
         state: types::ForkChoiceState,

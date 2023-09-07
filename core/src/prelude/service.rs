@@ -9,9 +9,3 @@ pub trait Service: Send + Sync {
 
     fn kill(&mut self) -> Result<(), Self::Error>;
 }
-
-pub trait StepService: Send + Sync {
-    type Error: Error + Send + Sync + 'static;
-
-    fn step(&mut self) -> Result<(), Self::Error>;
-}
