@@ -211,19 +211,15 @@ impl Service for Geth {
     fn stop(&mut self) -> std::result::Result<(), Self::Error> {
         self._stop()
     }
-
-    fn kill(&mut self) -> std::result::Result<(), Self::Error> {
-        self._kill()
-    }
 }
 
 impl ExecutionService for Geth {
-    type API = GethEngineAPI;
+    type EngineApi = GethEngineAPI;
 
     type Genesis = Genesis;
 
-    fn api(&self) -> Result<Self::API> {
-        Self::API::new(&self.jwt)
+    fn engine_api(&self) -> Result<Self::EngineApi> {
+        Self::EngineApi::new(&self.jwt)
     }
 
     fn init(&mut self, genesis: Genesis) -> Result<()> {
