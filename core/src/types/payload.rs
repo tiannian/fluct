@@ -1,6 +1,7 @@
 use ethers_core::types::{Bytes, H160, H256, U256};
 use serde::{Deserialize, Serialize};
 
+/// Execution Payload for Engine Api
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExecutionPayload<T> {
@@ -21,6 +22,7 @@ pub struct ExecutionPayload<T> {
 }
 
 impl<T> ExecutionPayload<T> {
+    /// Convert transactions into other type
     pub fn into_other_tx<O>(self, txs: Vec<O>) -> ExecutionPayload<O> {
         ExecutionPayload {
             parent_hash: self.parent_hash,

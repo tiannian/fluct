@@ -1,6 +1,7 @@
 use fluct_jsonrpc::{Error, ErrorCode, RpcError};
 use thiserror::Error;
 
+/// Engin Api error
 #[derive(Debug, Error)]
 pub enum EngineError {
     #[error("Get error response")]
@@ -29,6 +30,7 @@ impl From<RpcError> for EngineError {
     }
 }
 
+/// Web3 Api error
 #[derive(Debug, Error)]
 pub enum Web3Error {
     #[error("Get error response")]

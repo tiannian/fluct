@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Status;
 
+/// State of engine's fork choice.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ForkChoiceState {
@@ -11,6 +12,7 @@ pub struct ForkChoiceState {
     pub finalized_block_hash: H256,
 }
 
+/// Status of payload
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PayloadStatus {
@@ -19,6 +21,7 @@ pub struct PayloadStatus {
     validation_error: Option<String>,
 }
 
+/// Result of fork choice
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ForkChoiceResult {

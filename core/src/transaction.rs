@@ -1,5 +1,6 @@
 pub use ethers_core::types::Transaction;
 
+/// Utils for transaction
 pub mod transaction_utils {
     use ethers_core::{
         types::Bytes,

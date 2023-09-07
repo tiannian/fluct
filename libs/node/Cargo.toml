@@ -1,15 +1,13 @@
 [package]
-name = "fluct-core"
+name = "fluct-node"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fluct-jsonrpc.workspace = true
-
-log.workspace = true
-async-trait.workspace = true
+anyhow.workspace = true
 ethers-core.workspace = true
-serde.workspace = true
-thiserror.workspace = true
+serde_json.workspace = true
+
+fluct-core.workspace = true

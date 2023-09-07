@@ -15,11 +15,11 @@
 
 ### Dev
 
-- [ ] Add StepService
-- [ ] StepService for Consensus
+- [x] Add StepService
+- [x] StepService Utils
 - [ ] Rpc Service
 - [ ] P2P Service
 - [ ] DA Service
-- [x] Add reset method
+- [x] Split Web3 and Engine Api
 
 ## Version 0.2

@@ -1,6 +1,7 @@
 use ethers_core::types::{H160, H256, U256};
 use serde::{Deserialize, Serialize};
 
+/// Attributes of payload
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PayloadAttributes<T> {

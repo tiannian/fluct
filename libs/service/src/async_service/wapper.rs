@@ -62,11 +62,6 @@ macro_rules! define_async_step_service_wapper {
                 self.exit_flag = false;
                 Ok(())
             }
-
-            fn kill(&mut self) -> Result<(), Self::Error> {
-                self.exit_flag = false;
-                Ok(())
-            }
         }
     };
 }

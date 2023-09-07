@@ -3,12 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{transaction_utils, Error, Transaction};
 
+/// Genesis for all service
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Genesis<T, E> {
     pub consensus: ConsensusGenesis<T>,
     pub execution: E,
 }
 
+/// Genesis for consensus service
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConsensusGenesis<T> {
     pub chain_id: u64,
@@ -22,6 +24,7 @@ pub struct ConsensusGenesis<T> {
 }
 
 impl<E> Genesis<Bytes, E> {
+    /// Decode transaction bytes into transaction object
     pub fn from_transaction(self) -> Result<Genesis<Transaction, E>, Error> {
         let transactions = transaction_utils::bytes_to_transaction(&self.consensus.transactions)?;
 

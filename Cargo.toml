@@ -4,14 +4,29 @@ resolver = "2"
 members = [
   "core",
 
-  "consensus/dev",
+  # "consensus/dev",
 
-  "execution/op-geth",
+  # "execution/op-geth",
 
   "libs/jsonrpc",
   "libs/service",
+  "libs/node",
 
-  "sequencer/dev",
+  # "sequencer/dev",
 
-  "node/devnode",
+  # "node/devnode",
 ]
+
+[workspace.dependencies]
+fluct-core = { version = "0.1", path = "core", default-feature = false }
+fluct-jsonrpc = { version = "0.1", path = "libs/jsonrpc", default-feature = false }
+
+async-trait = "0.1.73"
+log = "0.4.20"
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.105"
+thiserror = "1.0.47"
+
+ethers-core = "2.0.9"
+
+anyhow = "1.0.75"

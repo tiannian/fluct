@@ -2,10 +2,8 @@ use std::{fs, path::Path};
 
 use anyhow::Result;
 use ethers_core::types::Bytes;
-
-use crate::{
-    types::{self, Config, Genesis},
-    ConsensusService, ExecutionService, SequencerService,
+use fluct_core::{
+    Config, ConsensusService, ExecutionService, ForkChoiceState, Genesis, SequencerService,
 };
 
 pub struct Node<C, E, S> {
@@ -17,14 +15,14 @@ pub struct Node<C, E, S> {
 
 impl<C, S, E> Node<C, E, S>
 where
-    C: ConsensusService<E::API, S>,
+    C: ConsensusService<E::EngineApi, S>,
     S: SequencerService,
     E: ExecutionService,
 {
     pub fn new(sequencer: S, execution: E, config: Config) -> Result<Self> {
         let mut execution = execution;
 
-        let eapi = execution.api()?;
+        let eapi = execution.engine_api()?;
         let sapi = sequencer.api();
 
         // Genesis
@@ -36,7 +34,7 @@ where
         let csp = Path::new(&config.chain_state);
         let state = if csp.exists() {
             let css = fs::read_to_string(&config.chain_state)?;
-            let state: types::ForkChoiceState = serde_json::from_str(&css)?;
+            let state: ForkChoiceState = serde_json::from_str(&css)?;
             state
         } else {
             execution.init(genesis.execution)?;
