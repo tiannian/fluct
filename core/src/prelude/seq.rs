@@ -8,6 +8,7 @@ use crate::{Service, Transaction};
 /// Api of sequencer
 ///
 /// Api can clone, It use to write mempool
+#[async_trait]
 pub trait SequencerApi: Clone {
     /// Error of sequencer
     type Error: Error + Sync + Send + 'static;
@@ -21,19 +22,18 @@ pub trait SequencerApi: Clone {
     ///
     /// Remove transaction from mempool
     fn comfirm_tx(&self, txhash: H256) -> Result<(), Self::Error>;
+
+    /// Get transacion seqence.
+    async fn txs(&self) -> Result<&[Transaction], Self::Error>;
 }
 
 /// Service of Sequencer, aka mempool(txpool) service
-#[async_trait]
 pub trait SequencerService: Service {
     /// Api of sequencer
     type Api: SequencerApi;
 
     /// Get Api instance
     fn api(&self) -> Self::Api;
-
-    /// Get transacion seqence.
-    async fn txs(&self) -> &[Transaction];
 }
 
 /// Error Type of SequencerApi from SequencerService

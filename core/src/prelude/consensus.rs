@@ -1,3 +1,7 @@
+use std::error::Error;
+
+use async_trait::async_trait;
+
 use crate::{
     types::{ConsensusGenesis, ForkChoiceState},
     EngineApi, SequencerService, Service, Transaction,
@@ -20,4 +24,11 @@ where
 
     /// Get chain state
     fn chain_state(&self) -> &ForkChoiceState;
+}
+
+#[async_trait]
+pub trait ConsensusApi {
+    type Error: Error;
+
+    async fn add_block(&mut self) -> Result<(), Self::Error>;
 }

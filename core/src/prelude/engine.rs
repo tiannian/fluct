@@ -12,6 +12,8 @@ pub trait ExecutionService: Service {
     /// Api instance of Engine API
     type EngineApi: EngineApi;
 
+    type Web3Api: Web3Api;
+
     /// Execution genesis type
     type Genesis: Serialize + for<'de> Deserialize<'de>;
 
@@ -25,7 +27,38 @@ pub trait ExecutionService: Service {
     ///
     /// This method only can call in devnode.
     fn reset(&mut self) -> Result<(), Self::Error>;
+}
 
+/// Api of Engine
+#[async_trait]
+pub trait EngineApi {
+    /// Choice block chain fork.
+    ///
+    /// Spec: [`engine_forkchoiceUpdatedV1`](https://github.com/ethereum/execution-apis/blob/769c53c94c4e487337ad0edea9ee0dce49c79bfa/src/engine/specification.md#engine_forkchoiceupdatedv1)
+    async fn engine_fork_choice(
+        &mut self,
+        state: types::ForkChoiceState,
+        attr: types::PayloadAttributes<Transaction>,
+    ) -> Result<types::ForkChoiceResult, EngineError>;
+
+    /// Add block on blockchain
+    ///
+    /// Spec: [`engine_newPayloadV1`](https://github.com/ethereum/execution-apis/blob/769c53c94c4e487337ad0edea9ee0dce49c79bfa/src/engine/specification.md#engine_newpayloadv1)
+    async fn engine_new_payload(
+        &mut self,
+        payload: types::ExecutionPayload<Transaction>,
+    ) -> Result<types::Status, EngineError>;
+
+    /// Get added block
+    async fn engine_get_payload(
+        &mut self,
+        payload_id: Bytes,
+    ) -> Result<types::ExecutionPayload<Transaction>, EngineError>;
+}
+
+/// Api of web3
+#[async_trait]
+pub trait Web3Api {
     /// Get latest block number
     async fn block_number(&self) -> Result<u64, Web3Error>;
 
@@ -60,31 +93,4 @@ pub trait ExecutionService: Service {
         index: H256,
         block: Option<BlockId>,
     ) -> Result<H256, Web3Error>;
-}
-
-/// Api of Engine
-#[async_trait]
-pub trait EngineApi: Clone {
-    /// Choice block chain fork.
-    ///
-    /// Spec: [`engine_forkchoiceUpdatedV1`](https://github.com/ethereum/execution-apis/blob/769c53c94c4e487337ad0edea9ee0dce49c79bfa/src/engine/specification.md#engine_forkchoiceupdatedv1)
-    async fn engine_fork_choice(
-        &mut self,
-        state: types::ForkChoiceState,
-        attr: types::PayloadAttributes<Transaction>,
-    ) -> Result<types::ForkChoiceResult, EngineError>;
-
-    /// Add block on blockchain
-    ///
-    /// Spec: [`engine_newPayloadV1`](https://github.com/ethereum/execution-apis/blob/769c53c94c4e487337ad0edea9ee0dce49c79bfa/src/engine/specification.md#engine_newpayloadv1)
-    async fn engine_new_payload(
-        &mut self,
-        payload: types::ExecutionPayload<Transaction>,
-    ) -> Result<types::Status, EngineError>;
-
-    /// Get added block
-    async fn engine_get_payload(
-        &mut self,
-        payload_id: Bytes,
-    ) -> Result<types::ExecutionPayload<Transaction>, EngineError>;
 }
