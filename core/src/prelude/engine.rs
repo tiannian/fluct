@@ -63,35 +63,35 @@ pub trait EngineApi {
 #[async_trait]
 pub trait Web3Api {
     /// Get latest block number
-    async fn block_number(&self) -> Result<u64, Web3Error>;
+    async fn block_number(&mut self) -> Result<u64, Web3Error>;
 
     /// Get chain_id
-    async fn chain_id(&self) -> Result<u64, Web3Error>;
+    async fn chain_id(&mut self) -> Result<u64, Web3Error>;
 
     /// Get block by hash, number or tag
-    async fn get_block(&self, block: BlockId) -> Result<Option<Block<Transaction>>, Web3Error>;
+    async fn get_block(&mut self, block: BlockId) -> Result<Option<Block<Transaction>>, Web3Error>;
 
     /// Get trnsaction by hash
-    async fn get_transaction(&self, hash: H256) -> Result<Option<Transaction>, Web3Error>;
+    async fn get_transaction(&mut self, hash: H256) -> Result<Option<Transaction>, Web3Error>;
 
     /// Get Transaction receipt by transaction hash
     async fn get_transaction_receipt(
-        &self,
+        &mut self,
         hash: H256,
     ) -> Result<Option<TransactionReceipt>, Web3Error>;
 
     /// Get syncing statue
-    async fn syncing(&self) -> Result<SyncingStatus, Web3Error>;
+    async fn syncing(&mut self) -> Result<SyncingStatus, Web3Error>;
 
     /// Get account balance
-    async fn balance(&self, address: H160, block: Option<BlockId>) -> Result<U256, Web3Error>;
+    async fn balance(&mut self, address: H160, block: Option<BlockId>) -> Result<U256, Web3Error>;
 
     /// Get account code
-    async fn code(&self, address: H160, block: Option<BlockId>) -> Result<Bytes, Web3Error>;
+    async fn code(&mut self, address: H160, block: Option<BlockId>) -> Result<Bytes, Web3Error>;
 
     /// Get account storage
     async fn storage_at(
-        &self,
+        &mut self,
         address: H160,
         index: H256,
         block: Option<BlockId>,

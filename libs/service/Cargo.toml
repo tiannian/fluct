@@ -11,6 +11,7 @@ fluct-core.workspace = true
 async-trait.workspace = true
 log.workspace = true
 
+tokio.workspace = true
+
 getset = "0.1.2"
-tokio = "1.32.0"
 tokio-scoped = "0.2.0"

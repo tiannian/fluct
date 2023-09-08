@@ -6,13 +6,13 @@ members = [
 
   # "consensus/dev",
 
-  # "execution/op-geth",
+  "execution/op-geth",
 
   "libs/jsonrpc",
   "libs/service",
   "libs/node",
 
-  # "sequencer/dev",
+  #   "sequencer/dev",
 
   # "node/devnode",
 ]
@@ -20,6 +20,7 @@ members = [
 [workspace.dependencies]
 fluct-core = { version = "0.1", path = "core", default-feature = false }
 fluct-jsonrpc = { version = "0.1", path = "libs/jsonrpc", default-feature = false }
+fluct-service = { version = "0.1", path = "libs/service", default-feature = false }
 
 # foundational
 async-trait = "0.1.73"
@@ -33,3 +34,5 @@ ethers-core = "2.0.9"
 # error handling
 anyhow = "1.0.75"
 thiserror = "1.0.47"
+
+tokio = "1.32.0"

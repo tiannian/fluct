@@ -10,7 +10,7 @@ use rust_embed::RustEmbed;
 use subprocess::{Popen, PopenConfig, Redirection};
 use tempfile::tempdir;
 
-use crate::{Config, Error, Genesis, GethEngineAPI, Result};
+use crate::{Config, Error, Genesis, GethEngineAPI, GethWeb3Api, Result};
 
 #[derive(RustEmbed)]
 #[folder = "$OUT_DIR/bin/"]
@@ -215,6 +215,8 @@ impl Service for Geth {
 
 impl ExecutionService for Geth {
     type EngineApi = GethEngineAPI;
+
+    type Web3Api = GethWeb3Api;
 
     type Genesis = Genesis;
 

@@ -1,15 +1,15 @@
 use ethers_core::types::H256;
-use fluct_core::{SequencerAPI, Transaction};
+use fluct_core::{SequencerApi, Transaction};
 use tokio::sync::mpsc::UnboundedSender;
 
 use crate::{ApiMessage, Error, Result};
 
 #[derive(Clone)]
-pub struct DevSequencerAPI {
+pub struct DevSequencerApi {
     pub(crate) sender: UnboundedSender<ApiMessage>,
 }
 
-impl SequencerAPI for DevSequencerAPI {
+impl SequencerApi for DevSequencerAPI {
     type Error = Error;
 
     fn broadcast_tx(&self, tx: Transaction) -> Result<()> {
