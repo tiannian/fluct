@@ -1,5 +1,5 @@
 [package]
-name = "fluct-seqencer-dev"
+name = "fluct-seqencer-fifo"
 version = "0.1.0"
 edition = "2021"
 

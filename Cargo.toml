@@ -12,7 +12,7 @@ members = [
   "libs/service",
   "libs/node",
 
-  #   "sequencer/dev",
+  "sequencer/fifo",
 
   # "node/devnode",
 ]

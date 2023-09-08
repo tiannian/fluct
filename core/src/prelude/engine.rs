@@ -61,7 +61,7 @@ pub trait EngineApi {
 
 /// Api of web3
 #[async_trait]
-pub trait Web3Api {
+pub trait Web3Api: Send + Sync + 'static {
     /// Get latest block number
     async fn block_number(&mut self) -> Result<u64, Web3Error>;
 

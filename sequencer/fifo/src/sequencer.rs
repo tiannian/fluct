@@ -1,8 +1,8 @@
 use std::io;
 
-use crate::{ApiMessage, DevSequencerAPI, Error, Result};
+use crate::{ApiMessage, DevSequencerApi, Error, Result};
 use async_trait::async_trait;
-use fluct_core::{SequencerService, Service, Transaction};
+use fluct_core::{SequencerService, Service, Transaction, Web3Api};
 use fluct_service::{AsyncStepService, AsyncStepServiceWapper1};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
@@ -10,6 +10,7 @@ struct DevSequencer {
     receiver: UnboundedReceiver<ApiMessage>,
     sender: UnboundedSender<ApiMessage>,
     txpool: Vec<Transaction>,
+    web3_api: Option<Box<dyn Web3Api>>,
 }
 
 impl Default for DevSequencer {
@@ -26,6 +27,7 @@ impl DevSequencer {
             receiver,
             sender,
             txpool: Vec::new(),
+            web3_api: None,
         }
     }
 
@@ -68,23 +70,19 @@ impl Service for DevSequencerService {
     fn stop(&mut self) -> std::result::Result<(), Self::Error> {
         self.0.stop()
     }
-
-    fn kill(&mut self) -> std::result::Result<(), Self::Error> {
-        self.0.kill()
-    }
 }
 
 #[async_trait]
 impl SequencerService for DevSequencerService {
-    type API = DevSequencerAPI;
+    type Api = DevSequencerApi;
 
-    fn api(&self) -> DevSequencerAPI {
-        DevSequencerAPI {
+    fn api(&self) -> DevSequencerApi {
+        DevSequencerApi {
             sender: self.0.service0().sender.clone(),
         }
     }
 
-    fn txs(&self) -> &[Transaction] {
-        &self.0.service0().txpool
+    fn set_api(&mut self, web3_api: impl Web3Api) {
+        self.0.service0_mut().web3_api = Some(Box::new(web3_api));
     }
 }

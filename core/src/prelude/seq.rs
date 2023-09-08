@@ -24,7 +24,7 @@ pub trait SequencerApi: Clone {
     fn comfirm_tx(&self, txhash: H256) -> Result<(), Self::Error>;
 
     /// Get transacion seqence.
-    async fn txs(&self) -> Result<&[Transaction], Self::Error>;
+    async fn txs(&self) -> Result<Vec<Transaction>, Self::Error>;
 }
 
 /// Service of Sequencer, aka mempool(txpool) service
