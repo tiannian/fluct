@@ -191,14 +191,6 @@ impl Geth {
 
         Ok(())
     }
-
-    fn _kill(&mut self) -> Result<()> {
-        let handle = self.handle.as_mut().ok_or(Error::NoInstanceStart)?;
-
-        handle.kill()?;
-
-        Ok(())
-    }
 }
 
 impl Service for Geth {
@@ -222,6 +214,10 @@ impl ExecutionService for Geth {
 
     fn engine_api(&self) -> Result<Self::EngineApi> {
         Self::EngineApi::new(&self.jwt)
+    }
+
+    fn web3_api(&self) -> Result<Self::Web3Api> {
+        Self::Web3Api::new()
     }
 
     fn init(&mut self, genesis: Genesis) -> Result<()> {

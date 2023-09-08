@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use ethers_core::types::{
-    Block, BlockId, BlockNumber, SyncingStatus, TransactionReceipt, H256, U64,
+    Block, BlockId, BlockNumber, Bytes, SyncingStatus, TransactionReceipt, H160, H256, U256, U64,
 };
 use fluct_core::{Transaction, Web3Api, Web3Error, Web3Result};
 use fluct_jsonrpc::client::{RpcClient, RpcResponse};
@@ -35,6 +35,18 @@ enum Web3Call {
     GetTransactionByHash((H256,)),
     #[serde(rename = "eth_getTransactionReceipt")]
     GetTransactionReceipt((H256,)),
+    #[serde(rename = "eth_getBalance")]
+    Balance((H160,)),
+    #[serde(rename = "eth_getBalance")]
+    BalanceWithBlock((H160, BlockId)),
+    #[serde(rename = "eth_getCode")]
+    Code((H160,)),
+    #[serde(rename = "eth_getCode")]
+    CodeWithBlock((H160, BlockId)),
+    #[serde(rename = "eth_getStorageAt")]
+    Storage((H160, H256)),
+    #[serde(rename = "eth_getStorageAt")]
+    StorageWithBlock((H160, H256, BlockId)),
     #[serde(rename = "eth_syncing")]
     Syncing(()),
 }
@@ -96,6 +108,52 @@ impl Web3Api for GethWeb3Api {
         let req = Web3Call::Syncing(());
 
         let res: RpcResponse<SyncingStatus> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(Web3Error::EmptyResponse)?;
+
+        Ok(res)
+    }
+
+    async fn balance(&mut self, address: H160, block: Option<BlockId>) -> Result<U256, Web3Error> {
+        let req = if let Some(b) = block {
+            Web3Call::BalanceWithBlock((address, b))
+        } else {
+            Web3Call::Balance((address,))
+        };
+
+        let res: RpcResponse<U256> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(Web3Error::EmptyResponse)?;
+
+        Ok(res)
+    }
+
+    /// Get account code
+    async fn code(&mut self, address: H160, block: Option<BlockId>) -> Result<Bytes, Web3Error> {
+        let req = if let Some(b) = block {
+            Web3Call::CodeWithBlock((address, b))
+        } else {
+            Web3Call::Code((address,))
+        };
+
+        let res: RpcResponse<Bytes> = self.client.call(req).await?;
+        let res = res.into_result()?.ok_or(Web3Error::EmptyResponse)?;
+
+        Ok(res)
+    }
+
+    /// Get account storage
+    async fn storage_at(
+        &mut self,
+        address: H160,
+        index: H256,
+        block: Option<BlockId>,
+    ) -> Result<H256, Web3Error> {
+        let req = if let Some(b) = block {
+            Web3Call::StorageWithBlock((address, index, b))
+        } else {
+            Web3Call::Storage((address, index))
+        };
+
+        let res: RpcResponse<H256> = self.client.call(req).await?;
         let res = res.into_result()?.ok_or(Web3Error::EmptyResponse)?;
 
         Ok(res)

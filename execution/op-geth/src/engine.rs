@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ethers_core::types::{BlockNumber, Bytes, H256};
+use ethers_core::types::Bytes;
 use fluct_core::{
     transaction_utils, EngineApi, EngineError, ExecutionPayload, ForkChoiceResult, ForkChoiceState,
     PayloadAttributes, Status, Transaction,
