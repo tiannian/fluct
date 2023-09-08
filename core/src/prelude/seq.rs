@@ -3,7 +3,7 @@ use std::error::Error;
 use async_trait::async_trait;
 use ethers_core::types::H256;
 
-use crate::{Service, Transaction};
+use crate::{Service, Transaction, Web3Api};
 
 /// Api of sequencer
 ///
@@ -34,6 +34,8 @@ pub trait SequencerService: Service {
 
     /// Get Api instance
     fn api(&self) -> Self::Api;
+
+    fn set_api(&mut self, web3_api: impl Web3Api);
 }
 
 /// Error Type of SequencerApi from SequencerService

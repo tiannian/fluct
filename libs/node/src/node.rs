@@ -15,15 +15,20 @@ pub struct Node<C, E, S> {
 
 impl<C, S, E> Node<C, E, S>
 where
-    C: ConsensusService<E::EngineApi, S>,
+    C: ConsensusService,
     S: SequencerService,
     E: ExecutionService,
 {
-    pub fn new(sequencer: S, execution: E, config: Config) -> Result<Self> {
+    pub fn new(sequencer: S, execution: E, consensus: C, config: Config) -> Result<Self> {
         let mut execution = execution;
+        let mut sequencer = sequencer;
+        let mut consensus = consensus;
 
         let eapi = execution.engine_api()?;
+        let wapi = execution.web3_api()?;
         let sapi = sequencer.api();
+
+        let wapi2 = execution.web3_api()?;
 
         // Genesis
         let gss = fs::read_to_string(&config.genesis)?;
@@ -41,7 +46,10 @@ where
             Default::default()
         };
 
-        let consensus = C::new(eapi, sapi, &sequencer, genesis.consensus, state)?;
+        sequencer.set_api(wapi2);
+        consensus.set_api(eapi, wapi, sapi);
+
+        consensus.init(genesis.consensus, state)?;
 
         Ok(Self {
             consensus,

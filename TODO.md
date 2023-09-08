@@ -21,5 +21,6 @@
 - [ ] P2P Service
 - [ ] DA Service
 - [x] Split Web3 and Engine Api
+- [x] Use dyn type
 
 ## Version 0.2

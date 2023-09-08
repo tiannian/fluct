@@ -20,6 +20,9 @@ pub trait ExecutionService: Service {
     /// Create engine api instance
     fn engine_api(&self) -> Result<Self::EngineApi, Self::Error>;
 
+    /// Create web3 api instance
+    fn web3_api(&self) -> Result<Self::Web3Api, Self::Error>;
+
     /// Init chain
     fn init(&mut self, genesis: Self::Genesis) -> Result<(), Self::Error>;
 

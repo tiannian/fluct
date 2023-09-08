@@ -4,23 +4,24 @@ use async_trait::async_trait;
 
 use crate::{
     types::{ConsensusGenesis, ForkChoiceState},
-    EngineApi, SequencerService, Service, Transaction,
+    EngineApi, SequencerApi, Service, Transaction, Web3Api,
 };
 
 /// Service of Consensus
-pub trait ConsensusService<E, S>: Service + Sized
-where
-    E: EngineApi,
-    S: SequencerService,
-{
+pub trait ConsensusService: Service + Sized {
     /// Create node and init node using genesis, if node isn't inited
-    fn new(
-        engine_api: E,
-        sequencer_api: S::Api,
-        sequencer: &S,
+    fn init(
+        &mut self,
         genesis: ConsensusGenesis<Transaction>,
         state: ForkChoiceState,
     ) -> Result<Self, Self::Error>;
+
+    fn set_api(
+        &mut self,
+        engine_api: impl EngineApi,
+        web3_api: impl Web3Api,
+        seqencer_api: impl SequencerApi,
+    );
 
     /// Get chain state
     fn chain_state(&self) -> &ForkChoiceState;
