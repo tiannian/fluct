@@ -8,6 +8,9 @@ pub use config::Config;
 mod engine;
 pub use engine::*;
 
+mod web3;
+pub use web3::*;
+
 mod error;
 pub use error::*;
 

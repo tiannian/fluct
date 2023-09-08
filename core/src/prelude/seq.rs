@@ -33,7 +33,7 @@ pub trait SequencerService: Service {
     fn api(&self) -> Self::Api;
 
     /// Get transacion seqence.
-    fn txs(&self) -> &[Transaction];
+    async fn txs(&self) -> &[Transaction];
 }
 
 /// Error Type of SequencerApi from SequencerService

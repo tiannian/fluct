@@ -30,16 +30,6 @@ enum EngineCall {
     NewPayload(ExecutionPayload<Bytes>),
     #[serde(rename = "engine_getPayloadV1")]
     GetPayload((Bytes,)),
-    #[serde(rename = "eth_chainId")]
-    ChainId(()),
-    #[serde(rename = "eth_blockNumber")]
-    BlockNumber(()),
-    #[serde(rename = "eth_getBlockByNumber")]
-    GetBlockByNumber((BlockNumber, bool)),
-    #[serde(rename = "eth_getBlockByHash")]
-    GetBlockByHash((H256, bool)),
-    #[serde(rename = "eth_syncing")]
-    Syncing(()),
 }
 
 #[async_trait]
@@ -92,45 +82,4 @@ impl EngineApi for GethEngineAPI {
 }
 
 /* impl GethEngineAPI {
-    async fn eth_block_number(&mut self) -> Result<u64, types::Web3Error> {
-        let req = EngineCall::BlockNumber(());
-
-        let res: RpcResponse<U64> = self.client.call(req).await?;
-        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
-
-        Ok(res.as_u64())
-    }
-
-    async fn eth_chain_id(&mut self) -> Result<u64, types::Web3Error> {
-        let req = EngineCall::ChainId(());
-
-        let res: RpcResponse<U64> = self.client.call(req).await?;
-        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
-
-        Ok(res.as_u64())
-    }
-
-    async fn eth_get_block(
-        &mut self,
-        block: BlockId,
-    ) -> Result<Block<Transaction>, types::Web3Error> {
-        let req = match block {
-            BlockId::Hash(v) => EngineCall::GetBlockByHash((v, true)),
-            BlockId::Number(v) => EngineCall::GetBlockByNumber((v, true)),
-        };
-
-        let res: RpcResponse<Block<Transaction>> = self.client.call(req).await?;
-        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
-
-        Ok(res)
-    }
-
-    async fn eth_syncing(&mut self) -> Result<SyncingStatus, types::Web3Error> {
-        let req = EngineCall::Syncing(());
-
-        let res: RpcResponse<SyncingStatus> = self.client.call(req).await?;
-        let res = res.into_result()?.ok_or(types::Web3Error::EmptyResponse)?;
-
-        Ok(res)
-    }
 } */

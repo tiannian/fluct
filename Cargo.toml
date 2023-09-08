@@ -6,7 +6,7 @@ members = [
 
   # "consensus/dev",
 
-  "execution/op-geth",
+  # "execution/op-geth",
 
   "libs/jsonrpc",
   "libs/service",

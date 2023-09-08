@@ -47,3 +47,5 @@ impl From<RpcError> for Web3Error {
         Self::UnknownRpcError(value)
     }
 }
+
+pub type Web3Result<T> = std::result::Result<T, Web3Error>;
