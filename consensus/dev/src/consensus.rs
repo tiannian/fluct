@@ -1,29 +1,24 @@
 use fluct_core::{
-    types::{ConsensusGenesis, ForkChoiceState},
-    ConsensusService, EngineAPI, SequencerAPI, SequencerService, Transaction,
+    ConsensusGenesis, ConsensusService, EngineApi, ForkChoiceState, SequencerApi, SequencerService,
+    Transaction,
 };
 
 use crate::{Error, Result};
 
-pub struct DevConseneus<'a, S, E>
-where
-    S: SequencerService,
-{
-    sequencer: &'a S,
-    sequencer_api: S::API,
+pub struct DevConseneus<S, E> {
+    sequencer_api: S,
     engine_api: E,
     state: ForkChoiceState,
 }
 
-impl<'a, S, E> DevConseneus<'a, S, E>
+impl<S, E> DevConseneus<S, E>
 where
-    S: SequencerService + Sync + Send,
-    E: EngineAPI + Sync + Send,
+    S: SequencerApi + Sync + Send,
+    E: EngineApi + Sync + Send,
 {
     pub fn new(
         engine_api: E,
-        sequencer_api: S::API,
-        sequencer: &'a S,
+        sequencer_api: S,
         genesis: ConsensusGenesis<Transaction>,
         state: ForkChoiceState,
     ) -> Result<Self, S> {
@@ -36,7 +31,6 @@ where
         }
 
         Ok(Self {
-            sequencer,
             sequencer_api,
             engine_api,
             state,

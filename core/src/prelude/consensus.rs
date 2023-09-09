@@ -22,9 +22,6 @@ pub trait ConsensusService: Service + Sized {
         web3_api: impl Web3Api,
         seqencer_api: impl SequencerApi,
     );
-
-    /// Get chain state
-    fn chain_state(&self) -> &ForkChoiceState;
 }
 
 #[async_trait]
@@ -32,4 +29,7 @@ pub trait ConsensusApi {
     type Error: Error;
 
     async fn add_block(&mut self) -> Result<(), Self::Error>;
+
+    /// Get chain state
+    async fn chain_state(&self) -> Result<ForkChoiceState, Self::Error>;
 }

@@ -1,11 +1,11 @@
-use fluct_core::{SequencerAPI, SequencerApiError, SequencerService};
+use fluct_core::SequencerApi;
 
 #[derive(Debug)]
 pub enum Error<S>
 where
-    S: SequencerService,
+    S: SequencerApi,
 {
-    SequencerApiError(SequencerApiError<S>),
+    SequencerApiError(S::Error),
 }
 
 pub type Result<T, S> = std::result::Result<T, Error<S>>;
