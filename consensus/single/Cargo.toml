@@ -1,5 +1,5 @@
 [package]
-name = "fluct-consensus-dev"
+name = "fluct-consensus-single"
 version = "0.1.0"
 edition = "2021"
 
