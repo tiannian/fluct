@@ -17,6 +17,7 @@ use crate::{Config, Error, Genesis, GethEngineAPI, GethWeb3Api, Result};
 #[include = "geth"]
 struct Assets;
 
+/// OpGeth instance
 pub struct Geth {
     work_dir: PathBuf,
 
@@ -52,6 +53,7 @@ impl Geth {
         self.work_dir.join("jwt_key")
     }
 
+    /// Create OpGeth node
     pub fn new(config: Config) -> Result<Self> {
         let work_dir = tempdir()?.into_path();
 
@@ -99,7 +101,7 @@ impl Geth {
         Ok(())
     }
 
-    pub fn _init(&self, genesis: &Genesis) -> Result<()> {
+    fn _init(&self, genesis: &Genesis) -> Result<()> {
         let config = PopenConfig {
             stderr: Redirection::Pipe,
             ..Default::default()

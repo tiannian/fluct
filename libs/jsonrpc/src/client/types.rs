@@ -3,8 +3,10 @@ use serde_json::Value;
 
 use crate::RpcError;
 
-pub type RpcResponses<T> = Vec<RpcResponse<T>>;
+/// JSONRPC Response Batch
+pub type RpcResponseBatch<T> = Vec<RpcResponse<T>>;
 
+/// JSONRPC Response
 #[derive(Debug, Clone, Deserialize)]
 pub struct RpcResponse<T> {
     pub jsonrpc: String,

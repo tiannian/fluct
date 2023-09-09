@@ -1,3 +1,5 @@
+//! Client of JSONRPC
+
 mod types;
 pub use types::*;
 

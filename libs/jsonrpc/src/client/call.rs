@@ -4,8 +4,9 @@ use http::Uri;
 use jsonwebtoken::EncodingKey;
 use serde::{Deserialize, Serialize};
 
-use super::{RpcResponse, RpcResponses};
+use super::{RpcResponse, RpcResponseBatch};
 
+/// JSONRPC Client
 #[derive(Clone)]
 pub struct RpcClient {
     id: u64,
@@ -43,7 +44,10 @@ impl RpcClient {
         }
     }
 
-    pub async fn multi_call<Req, Resp>(&mut self, requests: &[Req]) -> Result<RpcResponses<Resp>>
+    pub async fn multi_call<Req, Resp>(
+        &mut self,
+        requests: &[Req],
+    ) -> Result<RpcResponseBatch<Resp>>
     where
         Req: Serialize,
         Resp: for<'de> Deserialize<'de>,
@@ -58,7 +62,7 @@ impl RpcClient {
         let (status_code, bytes) = utils::request(&self.url, &reqs, self.jwt_key.as_ref()).await?;
 
         if status_code.is_success() {
-            let resp: RpcResponses<Resp> = serde_json::from_slice(&bytes)?;
+            let resp: RpcResponseBatch<Resp> = serde_json::from_slice(&bytes)?;
 
             Ok(resp)
         } else {

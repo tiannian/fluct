@@ -1,39 +1,38 @@
-use fluct_core::{
-    ConsensusGenesis, ConsensusService, EngineApi, ForkChoiceState, SequencerApi, SequencerService,
-    Transaction,
-};
+use ethers_core::types::H160;
+use ethers_signers::Signer;
+use fluct_core::ForkChoiceState;
 
-use crate::{Error, Result};
-
-pub struct DevConseneus<S, E> {
-    sequencer_api: S,
-    engine_api: E,
+pub struct SingleConsensus<SequencerApi, EngineApi, Signer> {
+    sequencer_api: Option<SequencerApi>,
+    engine_api: Option<EngineApi>,
+    signer: Option<Signer>,
     state: ForkChoiceState,
+    proposer: H160,
 }
 
-impl<S, E> DevConseneus<S, E>
+impl<SequencerApi, EngineApi, SignerT> SingleConsensus<SequencerApi, EngineApi, SignerT>
 where
-    S: SequencerApi + Sync + Send,
-    E: EngineApi + Sync + Send,
+    SignerT: Signer,
 {
-    pub fn new(
-        engine_api: E,
-        sequencer_api: S,
-        genesis: ConsensusGenesis<Transaction>,
-        state: ForkChoiceState,
-    ) -> Result<Self, S> {
-        let txs = genesis.transactions;
+    pub fn new_proposer(signer: SignerT) -> Self {
+        let proposer = signer.address();
 
-        for tx in txs {
-            sequencer_api
-                .broadcast_tx(tx)
-                .map_err(|e| Error::SequencerApiError(e))?;
+        Self {
+            sequencer_api: None,
+            engine_api: None,
+            state: Default::default(),
+            signer: Some(signer),
+            proposer,
         }
+    }
 
-        Ok(Self {
-            sequencer_api,
-            engine_api,
-            state,
-        })
+    pub fn new_follower(proposer: H160) -> Self {
+        Self {
+            sequencer_api: None,
+            engine_api: None,
+            state: Default::default(),
+            signer: None,
+            proposer,
+        }
     }
 }

@@ -8,13 +8,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::Error;
 
+/// Web3 API of OpGeth
 #[derive(Clone)]
 pub struct GethWeb3Api {
     client: RpcClient,
 }
 
 impl GethWeb3Api {
-    pub fn new() -> Result<Self, Error> {
+    pub(crate) fn new() -> Result<Self, Error> {
         let client = RpcClient::new("http://127.0.0.1:8545", None)?;
         Ok(Self { client })
     }

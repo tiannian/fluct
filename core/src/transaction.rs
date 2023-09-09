@@ -9,6 +9,7 @@ pub mod transaction_utils {
 
     use crate::{Error, Transaction};
 
+    /// Encode transaction to bytes
     pub fn transaction_to_bytes(txs: &[Transaction]) -> Vec<Bytes> {
         let mut ret = Vec::with_capacity(txs.len());
 
@@ -19,6 +20,7 @@ pub mod transaction_utils {
         ret
     }
 
+    /// Decode bytes to transaction
     pub fn bytes_to_transaction(bytes: &[Bytes]) -> Result<Vec<Transaction>, Error> {
         let mut ret = Vec::with_capacity(bytes.len());
 

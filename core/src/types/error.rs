@@ -48,4 +48,5 @@ impl From<RpcError> for Web3Error {
     }
 }
 
+/// Result type for web3 error
 pub type Web3Result<T> = std::result::Result<T, Web3Error>;

@@ -6,6 +6,7 @@ use fluct_core::{
     Config, ConsensusService, ExecutionService, ForkChoiceState, Genesis, SequencerService,
 };
 
+/// Blockchain Node
 pub struct Node<C, E, S> {
     consensus: C,
     execution: E,
@@ -19,6 +20,7 @@ where
     S: SequencerService,
     E: ExecutionService,
 {
+    /// Create node
     pub fn new(sequencer: S, execution: E, consensus: C, config: Config) -> Result<Self> {
         let mut execution = execution;
         let mut sequencer = sequencer;
@@ -59,6 +61,7 @@ where
         })
     }
 
+    /// Start node
     pub fn start(&mut self) -> Result<()> {
         // Check is empty chain? Init it.
 
@@ -73,6 +76,7 @@ where
         Ok(())
     }
 
+    /// Stop node
     pub fn stop(&self) -> Result<()> {
         Ok(())
     }

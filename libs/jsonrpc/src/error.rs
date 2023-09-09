@@ -3,6 +3,7 @@ use std::{borrow::Cow, fmt};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+/// JSONRPC Error
 #[derive(Debug, Error)]
 pub enum Error {
     #[error(transparent)]
@@ -30,6 +31,7 @@ pub enum Error {
     NotSuccessCode(hyper::StatusCode),
 }
 
+/// Result alias for JSONRPC Error
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents a JSON-RPC error

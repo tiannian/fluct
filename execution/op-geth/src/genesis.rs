@@ -1,8 +1,11 @@
+//! Genesis types
+
 use std::collections::HashMap;
 
 use ethers_core::types::{Bytes, H160, H256, U256};
 use serde::{Deserialize, Serialize};
 
+/// Chain configure for optimism
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Optimism {
@@ -10,6 +13,7 @@ pub struct Optimism {
     eip1559_denominator: u64,
 }
 
+/// Chain configure
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChainConfig {
@@ -35,6 +39,7 @@ pub struct ChainConfig {
     optimism: Optimism,
 }
 
+/// Genesis
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Genesis {
@@ -49,6 +54,7 @@ pub struct Genesis {
     pub alloc: HashMap<H160, AllocItem>,
 }
 
+/// Premint token, code and storage
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AllocItem {
     pub code: Bytes,

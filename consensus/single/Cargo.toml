@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fluct-core = { version = "0.1", path = "../../core" }
-thiserror = "1.0.48"
-ethers-core = "2.0.9"
+fluct-core.workspace = true
+thiserror.workspace = true
+ethers-core.workspace = true
+ethers-signers.workspace = true

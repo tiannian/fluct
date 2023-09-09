@@ -9,13 +9,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::Error;
 
+/// Engine API of OpGeth
 #[derive(Clone)]
 pub struct GethEngineAPI {
     client: RpcClient,
 }
 
 impl GethEngineAPI {
-    pub fn new(jwt: &[u8]) -> Result<Self, Error> {
+    pub(crate) fn new(jwt: &[u8]) -> Result<Self, Error> {
         let client = RpcClient::new("http://127.0.0.1:8551", Some(jwt))?;
         Ok(Self { client })
     }

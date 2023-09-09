@@ -1,8 +1,11 @@
+//! Configure types
+
 use std::{
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
 };
 
+/// Http Configure
 pub struct Http {
     pub listen: SocketAddr,
 }
@@ -15,6 +18,7 @@ impl Default for Http {
     }
 }
 
+/// Websocket Configure
 pub struct Ws {
     pub listen: SocketAddr,
 }
@@ -27,6 +31,7 @@ impl Default for Ws {
     }
 }
 
+/// GcMode Configure
 #[derive(Debug, Default)]
 pub enum GcMode {
     #[default]
@@ -43,6 +48,7 @@ impl GcMode {
     }
 }
 
+/// Configure for OpGeth
 pub struct Config {
     pub datadir: PathBuf,
     pub http: Option<Http>,

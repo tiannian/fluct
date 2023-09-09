@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+/// OpGeth Error
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("No Geth Binary Found")]
@@ -27,4 +28,5 @@ pub enum Error {
     JsonError(#[from] serde_json::Error),
 }
 
+/// Result alias of OpGeth Error
 pub type Result<T> = std::result::Result<T, Error>;
