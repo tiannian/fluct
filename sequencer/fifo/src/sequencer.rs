@@ -1,15 +1,18 @@
-use std::io;
+use std::{collections::HashMap, io};
 
-use crate::{ApiMessage, DevSequencerApi, Error, Result};
+use crate::{ApiRequest, ApiResponse, DevSequencerApi, Error, Result};
 use async_trait::async_trait;
+use ethers_core::types::H256;
 use fluct_core::{SequencerService, Service, Transaction, Web3Api};
-use fluct_service::{AsyncStepService, AsyncStepServiceWapper1};
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use fluct_service::{
+    local_rpc, AsyncStepService, AsyncStepServiceWapper1, CallError, Caller, Hander,
+};
 
 struct DevSequencer {
-    receiver: UnboundedReceiver<ApiMessage>,
-    sender: UnboundedSender<ApiMessage>,
+    handler: Hander<ApiRequest, ApiResponse>,
+    caller: Caller<ApiRequest, ApiResponse>,
     txpool: Vec<Transaction>,
+    txindexer: HashMap<H256, usize>,
     web3_api: Option<Box<dyn Web3Api>>,
 }
 
@@ -21,22 +24,39 @@ impl Default for DevSequencer {
 
 impl DevSequencer {
     pub fn new() -> Self {
-        let (sender, receiver) = unbounded_channel();
+        let (handler, caller) = local_rpc();
 
         Self {
-            receiver,
-            sender,
+            handler,
+            caller,
             txpool: Vec::new(),
+            txindexer: HashMap::new(),
             web3_api: None,
         }
     }
 
     async fn _step(&mut self) -> Result<()> {
-        let msg = self.receiver.recv().await.ok_or(Error::ChannelClosed)?;
+        let (rep, resper) = self.handler.recv().await?;
 
-        match msg {
-            ApiMessage::TxHash(hash) => {}
-            ApiMessage::Transaction(tx) => self.txpool.push(tx),
+        match rep {
+            ApiRequest::Transaction(tx) => {
+                self.txindexer.insert(tx.hash, self.txpool.len());
+                self.txpool.push(tx);
+            }
+            ApiRequest::TxHash(txhash) => {
+                if let Some(index) = self.txindexer.get(&txhash) {
+                    self.txpool.remove(*index);
+                }
+            }
+            ApiRequest::GetAllTransaction => {
+                if let Some(resper) = resper {
+                    resper
+                        .send(ApiResponse::GetAllTransaction(self.txpool.clone()))
+                        .map_err(|_| CallError::ChannelClosed)?;
+                } else {
+                    log::warn!("Use send method to get txpool")
+                }
+            }
         }
 
         Ok(())
@@ -78,7 +98,7 @@ impl SequencerService for DevSequencerService {
 
     fn api(&self) -> DevSequencerApi {
         DevSequencerApi {
-            sender: self.0.service0().sender.clone(),
+            caller: self.0.service0().caller.clone(),
         }
     }
 

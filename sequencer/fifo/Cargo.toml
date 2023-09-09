@@ -9,6 +9,7 @@ edition = "2021"
 async-trait.workspace = true
 ethers-core.workspace = true
 thiserror.workspace = true
+log.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 
 fluct-core.workspace = true
