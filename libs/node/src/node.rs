@@ -16,7 +16,7 @@ pub struct Node<C, E, S> {
 
 impl<C, S, E> Node<C, E, S>
 where
-    C: ConsensusService,
+    C: ConsensusService<S::Api>,
     S: SequencerService,
     E: ExecutionService,
 {

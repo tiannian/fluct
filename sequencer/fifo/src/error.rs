@@ -1,21 +1,26 @@
+use fluct_core::Web3Error;
 use fluct_service::{CallError, StepError};
 use thiserror::Error;
-use tokio::sync::oneshot;
 
 #[derive(Debug, Error)]
 pub enum Error {
     #[error(transparent)]
     CallError(#[from] CallError),
 
+    #[error("No web3 api configed")]
+    NoWeb3ApiConfiged,
+
     #[error(transparent)]
-    OneShotRecvError(#[from] oneshot::error::RecvError),
+    Web3Error(#[from] Web3Error),
 }
 
 impl StepError for Error {
     fn is_exit(&self) -> bool {
         match self {
             Self::CallError(CallError::ChannelClosed) => true,
-            Self::OneShotRecvError(_) => false,
+            Self::CallError(CallError::SenderReject) => false,
+            Self::NoWeb3ApiConfiged => true,
+            Self::Web3Error(_) => true,
         }
     }
 }

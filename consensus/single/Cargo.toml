@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 fluct-core.workspace = true
+fluct-service.workspace = true
+
 thiserror.workspace = true
+async-trait.workspace = true
 ethers-core.workspace = true
 ethers-signers.workspace = true

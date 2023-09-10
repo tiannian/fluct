@@ -16,6 +16,9 @@ pub trait CallableService {
 pub enum CallError {
     #[error("Channel closed")]
     ChannelClosed,
+
+    #[error("Sender reject response")]
+    SenderReject,
 }
 
 pub struct Hander<Request, Response> {
@@ -43,14 +46,16 @@ impl<Request, Response> Clone for Caller<Request, Response> {
 }
 
 impl<Request, Response> Caller<Request, Response> {
-    pub fn call(&self, req: Request) -> Result<oneshot::Receiver<Response>, CallError> {
+    pub async fn call(&self, req: Request) -> Result<Response, CallError> {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
             .send((req, Some(sender)))
             .map_err(|_| CallError::ChannelClosed)?;
 
-        Ok(receiver)
+        let r = receiver.await.map_err(|_| CallError::SenderReject)?;
+
+        Ok(r)
     }
 
     pub fn send(&self, req: Request) -> Result<(), CallError> {

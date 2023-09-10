@@ -13,3 +13,4 @@ async-trait.workspace = true
 ethers-core.workspace = true
 serde.workspace = true
 thiserror.workspace = true
+ethereum = "0.14.0"

@@ -40,8 +40,16 @@ impl DevSequencer {
 
         match rep {
             ApiRequest::Transaction(tx) => {
-                self.txindexer.insert(tx.hash, self.txpool.len());
-                self.txpool.push(tx);
+                let hash = tx.hash();
+
+                let api = self.web3_api.as_mut().ok_or(Error::NoWeb3ApiConfiged)?;
+
+                let r = api.get_transaction(hash).await?;
+
+                if r.is_none() {
+                    self.txindexer.insert(tx.hash, self.txpool.len());
+                    self.txpool.push(tx);
+                }
             }
             ApiRequest::TxHash(txhash) => {
                 if let Some(index) = self.txindexer.get(&txhash) {

@@ -27,7 +27,7 @@ impl SequencerApi for DevSequencerApi {
     }
 
     async fn txs(&self) -> Result<Vec<Transaction>> {
-        let resp = self.caller.call(ApiRequest::GetAllTransaction)?.await?;
+        let resp = self.caller.call(ApiRequest::GetAllTransaction).await?;
 
         match resp {
             ApiResponse::GetAllTransaction(v) => Ok(v),
