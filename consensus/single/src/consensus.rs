@@ -1,14 +1,16 @@
+use async_trait::async_trait;
 use ethers_core::types::H160;
 use ethers_signers::Signer;
 use fluct_core::{
     ConsensusGenesis, EngineApi, ForkChoiceState, SequencerApi, Transaction, Web3Api,
 };
+use fluct_service::{AsyncStepService, AsyncStepServiceWapper1};
 
 use crate::Error;
 
 pub struct SingleConsensus<S, SA> {
     sequencer_api: Option<SA>,
-    engine_api: Option<Box<dyn EngineApi>>,
+    engine_api: Option<Box<dyn EngineApi + Send + Sync>>,
     signer: Option<S>,
     state: ForkChoiceState,
     proposer: H160,
@@ -44,14 +46,22 @@ where
     }
 }
 
-/* impl SingleConsensus {
-    async fn _step(&mut self) -> Result<()> {
+#[async_trait]
+impl<S, SA> AsyncStepService for SingleConsensus<S, SA>
+where
+    SA: SequencerApi + Send + Sync,
+    S: Send + Sync,
+{
+    type Error = Error;
+
+    async fn step(&mut self) -> Result<(), Error> {
         Ok(())
     }
 }
-*/
 
-impl<S, SA> SingleConsensus<S, SA>
+pub struct SingleConsensusService<S, SA>(AsyncStepServiceWapper1<SingleConsensus<S, SA>>);
+
+/* impl<S, SA> SingleConsensus<S, SA>
 where
     SA: SequencerApi,
     S: Signer,
@@ -78,4 +88,4 @@ where
 
         Ok(())
     }
-}
+} */

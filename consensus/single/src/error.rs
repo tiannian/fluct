@@ -1,17 +1,27 @@
+use std::{
+    fmt::{Debug, Display},
+    sync::Arc,
+};
+
 use ethers_core::types::H256;
-use fluct_core::SequencerApi;
-use fluct_service::CallError;
+use fluct_service::{CallError, StepError};
 use thiserror::Error;
 
-#[derive(Debug)]
-pub enum Error<S>
-where
-    S: SequencerApi,
-{
-    SequencerApiError(S::Error),
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    SequencerApiError(String),
 }
 
-pub type Result<T, S> = std::result::Result<T, Error<S>>;
+impl StepError for Error {
+    fn is_exit(&self) -> bool {
+        match self {
+            Self::SequencerApiError(_) => false,
+        }
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum ApiError {
